@@ -1,10 +1,11 @@
+using Apps.VeevaVault;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Appname.Actions;
 
 [ActionList("Actions")]
-public class Actions(InvocationContext invocationContext) : Invocable(invocationContext)
+public class Actions(InvocationContext invocationContext) : VeevaVaultInvocable(invocationContext)
 {
     [Action("Action", Description = "Describes the action")]
     public async Task Action()

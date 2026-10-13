@@ -2,6 +2,7 @@ using System.Net;
 using Apps.Appname.Events.Webhooks.Handlers;
 using Apps.Appname.Models.Requests;
 using Apps.Appname.Models.Responses;
+using Apps.VeevaVault;
 using Blackbird.Applications.SDK.Blueprints;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
@@ -10,7 +11,7 @@ using Newtonsoft.Json;
 namespace Apps.Appname.Events.Webhooks;
 
 [WebhookList("Items")]
-public class ItemWebhookList(InvocationContext invocationContext) : Invocable(invocationContext)
+public class ItemWebhookList(InvocationContext invocationContext) : VeevaVaultInvocable(invocationContext)
 {
     // The handler type (second argument) owns subscription/unsubscription; this method handles the incoming request.
     [BlueprintEventDefinition(BlueprintEvent.ContentCreatedOrUpdated)]

@@ -1,4 +1,4 @@
-using Apps.Appname.Connections;
+using Apps.VeevaVault.Connections;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Tests.Appname.Base;
 

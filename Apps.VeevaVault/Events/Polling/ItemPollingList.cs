@@ -1,5 +1,6 @@
 ﻿using Apps.Appname.Models.Polling;
 using Apps.Appname.Models.Responses;
+using Apps.VeevaVault;
 using Blackbird.Applications.SDK.Blueprints;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Polling;
@@ -7,7 +8,7 @@ using Blackbird.Applications.Sdk.Common.Polling;
 namespace Apps.Appname.Events.Polling;
 
 [PollingEventList("Items")]
-public class ItemPollingList(InvocationContext invocationContext) : Invocable(invocationContext)
+public class ItemPollingList(InvocationContext invocationContext) : VeevaVaultInvocable(invocationContext)
 {
     [BlueprintEventDefinition(BlueprintEvent.ContentCreatedOrUpdatedMultiple)]
     [PollingEvent("On items created or updated",

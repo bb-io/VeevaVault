@@ -1,4 +1,4 @@
-using Apps.Appname.Api;
+using Apps.VeevaVault.Api;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
