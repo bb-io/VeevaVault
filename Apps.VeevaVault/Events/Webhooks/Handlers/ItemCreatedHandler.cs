@@ -20,7 +20,7 @@ public class ItemCreatedHandler(InvocationContext invocationContext) : BaseInvoc
     {
         // values["payloadUrl"] is the callback URL Blackbird generates for this bird.
         // Register it with your API so the third-party system starts POSTing events to it.
-        var client = new Client(authenticationCredentialsProvider);
+        var client = new VeevaClient(authenticationCredentialsProvider);
         var payload = new
         {
             url = values["payloadUrl"],
@@ -36,7 +36,7 @@ public class ItemCreatedHandler(InvocationContext invocationContext) : BaseInvoc
         Dictionary<string, string> values)
     {
         // Find the subscription that matches this bird's payload URL and delete it.
-        var client = new Client(authenticationCredentialsProvider);
+        var client = new VeevaClient(authenticationCredentialsProvider);
         var listRequest = new RestRequest("/webhooks", Method.Get);
         var response = await client.ExecuteWithErrorHandling(listRequest);
 

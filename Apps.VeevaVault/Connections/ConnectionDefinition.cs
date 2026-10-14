@@ -10,11 +10,13 @@ public class ConnectionDefinition : IConnectionDefinition
     {
         new()
         {
-            Name = "Developer API key",
+            Name = "User credentials",
             AuthenticationType = ConnectionAuthenticationType.Undefined,
             ConnectionProperties = new List<ConnectionProperty>
             {
-                new(CredsNames.Token) { DisplayName = "API Token", Sensitive = true}
+                new(CredsNames.VaultDns) { DisplayName = "Vault host name" },
+                new(CredsNames.Username) { DisplayName = "User name" },
+                new(CredsNames.Password) { DisplayName = "Password", Sensitive = true }
             }
         }
     };

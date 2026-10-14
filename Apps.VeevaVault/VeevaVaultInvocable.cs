@@ -8,7 +8,7 @@ namespace Apps.VeevaVault;
 public class VeevaVaultInvocable : BaseInvocable
 {
     protected AuthenticationCredentialsProvider[] Creds => InvocationContext.AuthenticationCredentialsProviders.ToArray();
-    protected Client Client { get; }
+    protected VeevaClient Client { get; }
     
     public VeevaVaultInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
