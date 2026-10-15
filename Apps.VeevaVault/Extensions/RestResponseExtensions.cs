@@ -30,11 +30,7 @@ public static class RestResponseExtensions
                 : response.ErrorMessage ?? $"Request failed with status {(int)response.StatusCode}. {response.Content}".TrimEnd();
         }
         
-        if (!veevaResponse.IsError)
-            return null;
-
-        var errors = veevaResponse.Errors?.Select(e => $"{e.Type}: {e.Message}").ToList() ?? [];
-        return errors.Count > 0 ? string.Join("; ", errors) : "Vault returned FAILURE without error details.";
+        return !veevaResponse.IsError ? null : veevaResponse.GetErrorMessage();
     }
 
     private static VeevaResponse? TryParseEnvelope(string? content)

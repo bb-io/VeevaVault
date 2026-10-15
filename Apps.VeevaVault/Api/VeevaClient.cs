@@ -1,7 +1,9 @@
 using Apps.VeevaVault.Authenticators;
 using Apps.VeevaVault.Constants;
 using Apps.VeevaVault.Extensions;
+using Apps.VeevaVault.Models.Utility.Error;
 using Apps.VeevaVault.Models.Utility.Pagination;
+using Apps.VeevaVault.Models.Utility.Wrapper;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
@@ -16,6 +18,21 @@ public class VeevaClient(IEnumerable<AuthenticationCredentialsProvider> creds) :
     Authenticator = new CredsAuthenticator(creds),
 })
 {
+    public async Task<List<T>> ExecuteBulkWithErrorHandling<T>(RestRequest request)
+    {
+        var response = await ExecuteWithErrorHandling<DataWrapper<List<VeevaDataResponse<T>>>>(request);
+
+        var errors = response.Data
+            .Select((item, index) => item.IsError ? $"Record {index + 1}: {item.GetErrorMessage()}" : null)
+            .OfType<string>()
+            .ToList();
+
+        if (errors.Count > 0)
+            throw new PluginApplicationException(string.Join(" | ", errors));
+
+        return response.Data.Select(x => x.Data).OfType<T>().ToList();
+    }
+    
     public async Task<List<T>> Paginate<T>(VeevaRequest request, int? maxPages = null)
     {
         var response = await ExecuteWithErrorHandling<PaginatedResponse<T>>(request);
@@ -34,6 +51,19 @@ public class VeevaClient(IEnumerable<AuthenticationCredentialsProvider> creds) :
         }
 
         return results;
+    }
+    
+    public override async Task<T> ExecuteWithErrorHandling<T>(RestRequest request)
+    {
+        var response = await ExecuteAsync(request);
+        return response.DeserializeWithErrorHandling<T>();
+    }
+
+    public override async Task<RestResponse> ExecuteWithErrorHandling(RestRequest request)
+    {
+        var response = await ExecuteAsync(request);
+        string? error = response.ExtractErrors();
+        return error is null ? response : throw new PluginApplicationException(error);
     }
     
     public static Uri GetBaseUrl(IEnumerable<AuthenticationCredentialsProvider> creds)

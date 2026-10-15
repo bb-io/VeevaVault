@@ -11,4 +11,10 @@ public class VeevaResponse
     public List<VeevaError>? Errors { get; set; }
 
     public bool IsError => string.Equals(ResponseStatus, "FAILURE", StringComparison.OrdinalIgnoreCase);
+
+    public string GetErrorMessage()
+    {
+        var errors = Errors?.Select(e => $"{e.Type}: {e.Message}").ToList() ?? [];
+        return errors.Count > 0 ? string.Join("; ", errors) : "Vault returned FAILURE without error details.";
+    }
 }
