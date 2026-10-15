@@ -1,3 +1,3 @@
 namespace Apps.VeevaVault.Models.Responses.VaultObject;
 
-public record SearchVaultObjectRecordsResponse(List<VaultObjectRecordResponse> Objects);
+public record SearchVaultObjectRecordsResponse(List<VaultObjectRecordMinimalResponse> Objects);

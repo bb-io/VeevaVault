@@ -2,6 +2,7 @@ using Apps.VeevaVault.Connections;
 using Apps.VeevaVault.Constants;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Tests.Appname.Base;
+using Tests.VeevaVault.Base;
 
 namespace Tests.VeevaVault;
 

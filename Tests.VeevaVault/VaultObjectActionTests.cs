@@ -13,11 +13,27 @@ public class VaultObjectActionTests : TestBase
     {
         // Arrange
         var actions = new VaultObjectActions(InvocationContext);
-        var objectIdentifier = new VaultObjectIdentifier { Name = "activity__v" };
+        var objectIdentifier = new VaultObjectIdentifier { VaultObjectName = "activity__v" };
         var searchInput = new SearchObjectRecordsRequest { NameContains = "" };
 
         // Act
         var result = await actions.SearchObjectRecords(objectIdentifier, searchInput);
+
+        // Assert
+        Assert.IsNotNull(result);
+        PrintJsonResult(result);
+    }
+    
+    [TestMethod]
+    public async Task GetObjectRecord_ReturnsRecord()
+    {
+        // Arrange
+        var actions = new VaultObjectActions(InvocationContext);
+        var objectIdentifier = new VaultObjectIdentifier { VaultObjectName = "activity__v" };
+        var recordIdentifier = new VaultObjectRecordIdentifier { VaultObjectRecordId = "0AC000000002002" };
+
+        // Act
+        var result = await actions.GetObjectRecord(objectIdentifier, recordIdentifier);
 
         // Assert
         Assert.IsNotNull(result);

@@ -1,4 +1,5 @@
 ﻿using Apps.VeevaVault.Handlers;
+using Apps.VeevaVault.Models.Identifiers;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Tests.VeevaVault.Base;
 
@@ -8,10 +9,25 @@ namespace Tests.VeevaVault;
 public class HandlerTests : TestBase
 {
     [TestMethod]
-    public async Task ObjectRecordDataHandler_ReturnsObjectRecords()
+    public async Task VaultObjectDataHandler_ReturnsObjects()
     {
         // Arrange
         var handler = new VaultObjectDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task VaultObjectRecordDataHandler_ReturnsObjectRecords()
+    {
+        // Arrange
+        var objectIdentifier = new VaultObjectIdentifier { VaultObjectName = "activity__v" };
+        var handler = new VaultObjectRecordDataHandler(InvocationContext, objectIdentifier);
 
         // Act
         var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
