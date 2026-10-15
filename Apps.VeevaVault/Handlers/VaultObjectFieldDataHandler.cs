@@ -22,6 +22,7 @@ public class VaultObjectFieldDataHandler : VeevaVaultInvocable, IAsyncDataSource
         _objectName = objectIdentifier.VaultObjectName;
     }
 
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/vault-objects/retrieve-object-metadata/
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken ct)
     {
         var request = new VeevaRequest($"metadata/vobjects/{_objectName}");
