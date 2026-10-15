@@ -4,9 +4,10 @@ using Apps.VeevaVault.Models.Entities.VaultObject;
 using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Requests.VaultObject;
 using Apps.VeevaVault.Models.Responses.VaultObject;
-using Apps.VeevaVault.Models.Utility.Wrapper;
+using Apps.VeevaVault.Models.Responses.VaultObject.Api;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using RestSharp;
 
@@ -32,13 +33,35 @@ public class VaultObjectActions(InvocationContext invocationContext) : VeevaVaul
     }
 
     // https://general.veevavault.dev/vault-api/api-reference/26.2/vault-objects/retrieve-object-record/
-    [Action("Get object record")]
+    [Action("Get object record", Description = "Get details for a specific object record")]
     public async Task<VaultObjectRecordResponse> GetObjectRecord(
         [ActionParameter] VaultObjectIdentifier objectIdentifier,
         [ActionParameter] VaultObjectRecordIdentifier recordIdentifier)
     {
-        var request = new VeevaRequest($"vobjects/{objectIdentifier.VaultObjectName}/{recordIdentifier.VaultObjectRecordId}");
-        var response = await Client.ExecuteWithErrorHandling<DataWrapper<VaultObjectRecordEntity>>(request);
-        return new(response.Data);
+        var entity = await Client.GetObjectRecord(objectIdentifier.VaultObjectName, recordIdentifier.VaultObjectRecordId);
+        return new(entity);
+    }
+
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/vault-objects/create-upsert-object-records/
+    [Action("Create object record", Description = "Create a new object record")]
+    public async Task<VaultObjectRecordResponse> CreateObjectRecord(
+        [ActionParameter] VaultObjectIdentifier objectIdentifier,
+        [ActionParameter] CreateObjectRecordRequest input)
+    {
+        var body = new object[]
+        {
+            new
+            {
+                name__v = input.Name
+            }
+        };
+
+        var request = new VeevaRequest($"vobjects/{objectIdentifier.VaultObjectName}", Method.Post).AddJsonBody(body);
+        var response = await Client.ExecuteBulkWithErrorHandling<CreateObjectRecordResponse>(request);
+
+        string createdEntityId = response.FirstOrDefault()?.Id ?? 
+                                 throw new PluginApplicationException("Vault did not return the created record ID");
+        var createdEntity = await Client.GetObjectRecord(objectIdentifier.VaultObjectName, createdEntityId);
+        return new(createdEntity);
     }
 }

@@ -39,4 +39,20 @@ public class VaultObjectActionTests : TestBase
         Assert.IsNotNull(result);
         PrintJsonResult(result);
     }
+    
+    [TestMethod]
+    public async Task CreateObjectRecord_ReturnsCreatedRecord()
+    {
+        // Arrange
+        var actions = new VaultObjectActions(InvocationContext);
+        var objectIdentifier = new VaultObjectIdentifier { VaultObjectName = "product__v" };
+        var createInput = new CreateObjectRecordRequest { Name = "test object record" };
+
+        // Act
+        var result = await actions.CreateObjectRecord(objectIdentifier, createInput);
+
+        // Assert
+        Assert.IsNotNull(result);
+        PrintJsonResult(result);
+    }
 }
