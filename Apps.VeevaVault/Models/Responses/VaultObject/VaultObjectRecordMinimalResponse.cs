@@ -10,4 +10,10 @@ public class VaultObjectRecordMinimalResponse(VaultObjectRecordMinimalEntity ent
 
     [Display("Vault object name")]
     public string Name { get; set; } = entity.Name;
+
+    [Display("Vault created date")]
+    public DateTime CreatedDate { get; set; } = entity.CreatedDate;
+
+    [Display("Vault modified date")]
+    public DateTime ModifiedDate { get; set; } = entity.ModifiedDate;
 }

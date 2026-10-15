@@ -1,4 +1,5 @@
 using Apps.VeevaVault.Api;
+using Apps.VeevaVault.Constants;
 using Apps.VeevaVault.Extensions;
 using Apps.VeevaVault.Models.Entities.VaultObject;
 using Apps.VeevaVault.Models.Identifiers;
@@ -22,7 +23,7 @@ public class VaultObjectActions(InvocationContext invocationContext) : VeevaVaul
         [ActionParameter] VaultObjectIdentifier objectIdentifier,
         [ActionParameter] SearchObjectRecordsRequest searchInput)
     {
-        string vql = $"SELECT id, name__v FROM {objectIdentifier.VaultObjectName}";
+        string vql = VqlQueries.GetMinimalVaultObjectQuery(objectIdentifier.VaultObjectName);
         if (!string.IsNullOrEmpty(searchInput.NameContains))
             vql += $" FIND ('{searchInput.NameContains}' SCOPE name__v)";
         

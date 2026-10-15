@@ -9,4 +9,10 @@ public class VaultObjectRecordMinimalEntity
 
     [JsonProperty("name__v")]
     public string Name { get; set; } = string.Empty;
+
+    [JsonProperty("created_date__v")]
+    public DateTime CreatedDate { get; set; }
+
+    [JsonProperty("modified_date__v")]
+    public DateTime ModifiedDate { get; set; }
 }
