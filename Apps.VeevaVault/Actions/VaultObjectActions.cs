@@ -57,11 +57,33 @@ public class VaultObjectActions(InvocationContext invocationContext) : VeevaVaul
         };
 
         var request = new VeevaRequest($"vobjects/{objectIdentifier.VaultObjectName}", Method.Post).AddJsonBody(body);
-        var response = await Client.ExecuteBulkWithErrorHandling<CreateObjectRecordResponse>(request);
+        var response = await Client.ExecuteBulkWithErrorHandling<UpsertObjectRecordResponse>(request);
 
         string createdEntityId = response.FirstOrDefault()?.Id ?? 
                                  throw new PluginApplicationException("Vault did not return the created record ID");
         var createdEntity = await Client.GetObjectRecord(objectIdentifier.VaultObjectName, createdEntityId);
+        return new(createdEntity);
+    }
+
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/vault-objects/update-object-records/
+    [Action("Update object record", Description = "Update an editable field value for a specific object record")]
+    public async Task<VaultObjectRecordResponse> UpdateObjectRecord(
+        [ActionParameter] VaultObjectIdentifier objectIdentifier,
+        [ActionParameter] VaultObjectRecordIdentifier recordIdentifier,
+        [ActionParameter] UpdateObjectRecordRequest input)
+    {
+        var body = new Dictionary<string, string>
+        {
+            { "id", recordIdentifier.VaultObjectRecordId },
+            { input.FieldName, input.FieldValue },
+        };
+        string endpoint = $"vobjects/{objectIdentifier.VaultObjectName}";
+        var request = new VeevaRequest(endpoint, Method.Put).AddJsonBody(new[] { body });
+        var response = await Client.ExecuteBulkWithErrorHandling<UpsertObjectRecordResponse>(request);
+
+        string updatedEntityId = response.FirstOrDefault()?.Id ?? 
+                                 throw new PluginApplicationException("Vault did not return the updated record ID");
+        var createdEntity = await Client.GetObjectRecord(objectIdentifier.VaultObjectName, updatedEntityId);
         return new(createdEntity);
     }
 }

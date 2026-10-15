@@ -36,4 +36,19 @@ public class HandlerTests : TestBase
         PrintDataHandlerResult(result);
         Assert.IsNotNull(result);
     }
+    
+    [TestMethod]
+    public async Task VaultObjectFieldDataHandler_ReturnsObjectFields()
+    {
+        // Arrange
+        var objectIdentifier = new VaultObjectIdentifier { VaultObjectName = "activity__v" };
+        var handler = new VaultObjectFieldDataHandler(InvocationContext, objectIdentifier);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
 }

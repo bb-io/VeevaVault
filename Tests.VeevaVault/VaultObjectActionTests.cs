@@ -55,4 +55,25 @@ public class VaultObjectActionTests : TestBase
         Assert.IsNotNull(result);
         PrintJsonResult(result);
     }
+    
+    [TestMethod]
+    public async Task UpdateObjectRecord_ReturnsUpdatedRecord()
+    {
+        // Arrange
+        var actions = new VaultObjectActions(InvocationContext);
+        var objectIdentifier = new VaultObjectIdentifier { VaultObjectName = "product__v" };
+        var recordIdentifier = new VaultObjectRecordIdentifier { VaultObjectRecordId = "00P000000005001" };
+        var updateInput = new UpdateObjectRecordRequest
+        {
+            FieldName = "name__v",
+            FieldValue = "updated test product",
+        };
+
+        // Act
+        var result = await actions.UpdateObjectRecord(objectIdentifier, recordIdentifier, updateInput);
+
+        // Assert
+        Assert.IsNotNull(result);
+        PrintJsonResult(result);
+    }
 }

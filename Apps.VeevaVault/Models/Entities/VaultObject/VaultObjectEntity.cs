@@ -9,4 +9,7 @@ public class VaultObjectEntity
 
     [JsonProperty("label")]
     public string Label { get; set; } = string.Empty;
+
+    [JsonProperty("fields")]
+    public List<VaultObjectField> Fields { get; set; } = [];
 }
