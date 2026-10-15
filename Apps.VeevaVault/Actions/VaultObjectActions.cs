@@ -15,6 +15,7 @@ namespace Apps.VeevaVault.Actions;
 [ActionList("Vault objects")]
 public class VaultObjectActions(InvocationContext invocationContext) : VeevaVaultInvocable(invocationContext)
 {
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/vault-objects/retrieve-object-records/
     [Action("Search object records", Description = "Search object records with a specific criteria")]
     public async Task<SearchVaultObjectRecordsResponse> SearchObjectRecords(
         [ActionParameter] VaultObjectIdentifier objectIdentifier,
@@ -30,6 +31,7 @@ public class VaultObjectActions(InvocationContext invocationContext) : VeevaVaul
         return new(response.Select(x => new VaultObjectRecordMinimalResponse(x)).ToList());
     }
 
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/vault-objects/retrieve-object-record/
     [Action("Get object record")]
     public async Task<VaultObjectRecordResponse> GetObjectRecord(
         [ActionParameter] VaultObjectIdentifier objectIdentifier,

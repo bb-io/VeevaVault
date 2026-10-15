@@ -8,6 +8,7 @@ namespace Apps.VeevaVault.Handlers;
 public class VaultObjectDataHandler(InvocationContext invocationContext) 
     : VeevaVaultInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/vault-objects/retrieve-object-collection/
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken ct)
     {
         // Does not support pagination, just returns all objects in one response

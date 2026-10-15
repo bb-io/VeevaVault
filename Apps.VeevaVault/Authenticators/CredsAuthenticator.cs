@@ -13,6 +13,7 @@ public class CredsAuthenticator(IEnumerable<AuthenticationCredentialsProvider> c
 {
     private string? _sessionId;
     
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/authentication/user-name-and-password/
     public async ValueTask Authenticate(IRestClient client, RestRequest request)
     {
         if (string.IsNullOrEmpty(_sessionId))

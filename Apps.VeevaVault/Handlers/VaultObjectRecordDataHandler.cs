@@ -24,6 +24,7 @@ public class VaultObjectRecordDataHandler : VeevaVaultInvocable, IAsyncDataSourc
         _objectName = objectIdentifier.VaultObjectName;
     }
 
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/vault-objects/retrieve-object-records/
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken ct)
     {
         string vql = $"SELECT id, name__v FROM {_objectName}";
