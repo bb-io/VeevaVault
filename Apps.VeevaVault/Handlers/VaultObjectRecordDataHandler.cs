@@ -1,5 +1,6 @@
 using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Extensions;
+using Apps.VeevaVault.Helper;
 using Apps.VeevaVault.Models.Entities.VaultObject;
 using Apps.VeevaVault.Models.Identifiers;
 using Blackbird.Applications.Sdk.Common;
@@ -27,12 +28,12 @@ public class VaultObjectRecordDataHandler : VeevaVaultInvocable, IAsyncDataSourc
     // https://general.veevavault.dev/vault-api/api-reference/26.2/vault-objects/retrieve-object-records/
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken ct)
     {
-        string vql = $"SELECT id, name__v FROM {_objectName}";
-        if (!string.IsNullOrEmpty(context.SearchString))
-            vql += $" FIND ('{context.SearchString}' SCOPE name__v)";
+        string vql = new VqlBuilder(_objectName, ["id", "name__v"])
+            .Find(context.SearchString, "name__v")
+            .Build();
         
         var request = new VeevaRequest("query", Method.Post).AddVql(vql);
-        var response = await Client.Paginate<VaultObjectRecordMinimalEntity>(request);
+        var response = await Client.Paginate<VaultObjectRecordMinimalEntity>(request, maxPages: 2);
 
         return response.Select(x => new DataSourceItem(x.Id, x.Name)).ToList();
     }

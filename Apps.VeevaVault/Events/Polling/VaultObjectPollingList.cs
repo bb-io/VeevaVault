@@ -28,9 +28,9 @@ public class VaultObjectPollingList(InvocationContext invocationContext) : Veeva
         if (pollingRequest.Memory?.LastPollingTime is null)
             return PollingResponses.DoNotFly<List<VaultObjectRecordMinimalResponse>>(pollingStartTime);
 
-        string mainSelect = VqlQueries.GetMinimalVaultObjectQuery(objectIdentifier.VaultObjectName);
-        string timestamp = pollingRequest.Memory.LastPollingTime.Value.ToVeevaTimestampString();
-        string vql = $"{mainSelect} WHERE modified_date__v >= '{timestamp}'";
+        string vql = new VqlBuilder(objectIdentifier.VaultObjectName, VqlFields.MinimalVaultObject)
+            .WhereAfterOrEqual("modified_date__v", pollingRequest.Memory.LastPollingTime.Value)
+            .Build();
         
         var request = new VeevaRequest("query", Method.Post).AddVql(vql);
         var response = await Client.Paginate<VaultObjectRecordMinimalEntity>(request);
