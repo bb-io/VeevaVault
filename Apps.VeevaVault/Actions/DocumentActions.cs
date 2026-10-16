@@ -1,9 +1,12 @@
+using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Constants;
 using Apps.VeevaVault.Extensions;
 using Apps.VeevaVault.Helper;
 using Apps.VeevaVault.Models.Entities.Document;
+using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Requests.Document;
 using Apps.VeevaVault.Models.Responses.Document;
+using Apps.VeevaVault.Models.Responses.Document.Api;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -25,9 +28,9 @@ public class DocumentActions(InvocationContext invocationContext) : VeevaVaultIn
                 return new([]);
         }
         
-        if (!string.IsNullOrEmpty(input.WorkflowStepName))
+        if (!string.IsNullOrEmpty(input.WorkflowStep))
         {
-            var stepIds = await Client.GetWorkflowStepDocumentIds(input.WorkflowStepName);
+            var stepIds = await Client.GetWorkflowStepDocumentIds(input.WorkflowStep);
             if (stepIds.Count == 0)
                 return new([]);
 
@@ -45,5 +48,14 @@ public class DocumentActions(InvocationContext invocationContext) : VeevaVaultIn
         
         var response = await Client.Query<DocumentEntity>(vql);
         return new(response.Select(x => new DocumentResponse(x)).ToList());
+    }
+
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/documents/retrieve-documents/retrieve-document/
+    [Action("Get document", Description = "Get details for a specific document")]
+    public async Task<DocumentResponse> GetDocument([ActionParameter] DocumentIdentifier documentIdentifier)
+    {
+        var request = new VeevaRequest($"objects/documents/{documentIdentifier.DocumentId}");
+        var response = await Client.ExecuteWithErrorHandling<RetrieveDocumentResponse>(request);
+        return new(response.Document);
     }
 }

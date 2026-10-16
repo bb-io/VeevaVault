@@ -1,4 +1,5 @@
 using Apps.VeevaVault.Actions;
+using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Requests.Document;
 using Tests.VeevaVault.Base;
 
@@ -19,6 +20,21 @@ public class DocumentActionTests : TestBase
 
         // Act
         var result = await actions.SearchDocuments(input);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task GetDocument_ReturnsDocument()
+    {
+        // Arrange
+        var actions = new DocumentActions(InvocationContext);
+        var input = new DocumentIdentifier { DocumentId = "2601" };
+
+        // Act
+        var result = await actions.GetDocument(input);
 
         // Assert
         PrintJsonResult(result);
