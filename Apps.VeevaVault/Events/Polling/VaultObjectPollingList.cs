@@ -1,0 +1,38 @@
+﻿using Apps.VeevaVault.Constants;
+using Apps.VeevaVault.Extensions;
+using Apps.VeevaVault.Helper;
+using Apps.VeevaVault.Models.Entities.VaultObject;
+using Apps.VeevaVault.Models.Identifiers;
+using Apps.VeevaVault.Models.Polling;
+using Apps.VeevaVault.Models.Responses.VaultObject;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Common.Polling;
+
+namespace Apps.VeevaVault.Events.Polling;
+
+[PollingEventList("Vault objects")]
+public class VaultObjectPollingList(InvocationContext invocationContext) : VeevaVaultInvocable(invocationContext)
+{
+    [MultipleEvents]
+    [PollingEvent("On object record created or updated",
+        Description = "Triggered when a vault object record is created or updated.")]
+    public async Task<PollingEventResponse<DateMemory, List<VaultObjectRecordMinimalResponse>>> OnObjectRecordCreatedOrUpdated(
+        PollingEventRequest<DateMemory> pollingRequest,
+        [PollingEventParameter] VaultObjectIdentifier objectIdentifier)
+    {
+        var pollingStartTime = DateTime.UtcNow;
+
+        if (pollingRequest.Memory?.LastPollingTime is null)
+            return PollingResponses.DoNotFly<List<VaultObjectRecordMinimalResponse>>(pollingStartTime);
+
+        string vql = new VqlBuilder(objectIdentifier.VaultObjectName, VqlFields.MinimalVaultObject)
+            .WhereAfterOrEqual("modified_date__v", pollingRequest.Memory.LastPollingTime.Value)
+            .Build();
+        
+        var response = await Client.Query<VaultObjectRecordMinimalEntity>(vql);
+        var items = response.Select(x => new VaultObjectRecordMinimalResponse(x)).ToList();
+        
+        return PollingResponses.FlyIfAny(pollingStartTime, items);
+    }
+}

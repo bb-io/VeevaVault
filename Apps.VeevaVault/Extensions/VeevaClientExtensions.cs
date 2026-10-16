@@ -1,0 +1,62 @@
+using Apps.VeevaVault.Api;
+using Apps.VeevaVault.Helper;
+using Apps.VeevaVault.Models.Entities.Common;
+using Apps.VeevaVault.Models.Entities.Document;
+using Apps.VeevaVault.Models.Entities.VaultObject;
+using Apps.VeevaVault.Models.Entities.Workflow;
+using Apps.VeevaVault.Models.Utility.Wrapper;
+using Blackbird.Applications.Sdk.Common.Exceptions;
+using RestSharp;
+
+namespace Apps.VeevaVault.Extensions;
+
+public static class VeevaClientExtensions
+{
+    public static async Task<VaultObjectRecordEntity> GetObjectRecord(
+        this VeevaClient client,
+        string objectName,
+        string recordId)
+    {
+        var request = new VeevaRequest($"vobjects/{objectName}/{recordId}");
+        var response = await client.ExecuteWithErrorHandling<DataWrapper<VaultObjectRecordEntity>>(request);
+        return response.Data;
+    }
+    
+    public static async Task<List<long>> GetBinderDocumentIds(this VeevaClient client, string binderId)
+    {
+        if (!long.TryParse(binderId, out long parsedBinderId))
+            throw new PluginMisconfigurationException($"Binder ID '{binderId}' is not a valid number");
+
+        string vql = new VqlBuilder("binder_node__sys", ["content_id__sys"])
+            .Where($"parent_binder_id__sys = {parsedBinderId}")
+            .WhereEquals("type__sys", "document__sys")
+            .Build();
+
+        var nodes = await client.Query<BinderNodeEntity>(vql);
+        return nodes.Select(x => x.ContentId).Distinct().ToList();
+    }
+    
+    public static async Task<List<long>> GetWorkflowStepDocumentIds(this VeevaClient client, string stepName)
+    {
+        string tasksVql = new VqlBuilder("active_workflow_task__sys", ["id"])
+            .WhereEquals("name__sys", stepName)
+            .Build();
+
+        var tasks = await client.Query<IdEntity>(tasksVql);
+        if (tasks.Count == 0)
+            return [];
+
+        string itemsVql = new VqlBuilder("active_workflow_task_item__sys", ["document_id__sys"])
+            .WhereContains("task__sys", tasks.Select(x => x.Id))
+            .Build();
+
+        var items = await client.Query<WorkflowTaskItemEntity>(itemsVql);
+        return items.Select(x => x.DocumentId).Distinct().ToList();
+    }
+
+    public static Task<List<T>> Query<T>(this VeevaClient client, string vql, int? maxPages = null)
+    {
+        var request = new VeevaRequest("query", Method.Post).AddQueryParameter("q", vql);
+        return client.Paginate<T>(request, maxPages);
+    }
+}
