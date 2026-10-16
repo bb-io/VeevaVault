@@ -9,6 +9,30 @@ public class VqlBuilder(string from, IEnumerable<string> fields)
     {
         return value is null ? this : Where($"{field} >= '{value.Value.ToUniversalTime():yyyy-MM-dd'T'HH:mm:ss.fff'Z'}'");
     }
+
+    public VqlBuilder WhereContains(string field, IEnumerable<string>? values)
+    {
+        var quoted = values?
+            .Where(v => !string.IsNullOrWhiteSpace(v))
+            .Select(v => $"'{v}'")
+            .ToList();
+
+        return quoted is null || quoted.Count == 0 
+            ? this 
+            : Where($"{field} CONTAINS ({string.Join(", ", quoted)})");
+    }
+
+    public VqlBuilder WhereContains(string field, IEnumerable<long>? values)
+    {
+        return values is null || values.Count() == 0 
+            ? this 
+            : Where($"{field} CONTAINS ({string.Join(", ", values)})");
+    }
+    
+    public VqlBuilder WhereEquals(string field, long? value)
+    {
+        return value is null ? this : Where($"{field} = {value}");
+    }
     
     public VqlBuilder WhereEquals(string field, string? value)
     {
@@ -37,7 +61,7 @@ public class VqlBuilder(string from, IEnumerable<string> fields)
             vql += $" {_find}";
 
         if (_conditions.Count != 0)
-            vql += $" WHERE {string.Join("AND", _conditions)}";
+            vql += $" WHERE {string.Join(" AND ", _conditions)}";
 
         return vql;
     }

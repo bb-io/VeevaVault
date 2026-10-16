@@ -51,4 +51,46 @@ public class HandlerTests : TestBase
         PrintDataHandlerResult(result);
         Assert.IsNotNull(result);
     }
+    
+    [TestMethod]
+    public async Task DocumentTypeDataHandler_ReturnsDocuments()
+    {
+        // Arrange
+        var handler = new DocumentTypeDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "email" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task BinderDataHandler_ReturnsBinders()
+    {
+        // Arrange
+        var handler = new BinderDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task WorkflowStepDataHandler_ReturnsWorkflowSteps()
+    {
+        // Arrange
+        var handler = new WorkflowStepDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
 }
