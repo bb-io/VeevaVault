@@ -1,4 +1,5 @@
 using Apps.VeevaVault.Api;
+using Apps.VeevaVault.Extensions;
 using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Responses.VaultObject.Api;
 using Blackbird.Applications.Sdk.Common;
@@ -31,9 +32,7 @@ public class VaultObjectFieldDataHandler : VeevaVaultInvocable, IAsyncDataSource
         var fields = response.Object.Fields;
         return fields
             .Where(x => x.IsEditable)
-            .Where(x =>
-                string.IsNullOrEmpty(context.SearchString) ||
-                x.Label.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
+            .Where(x => x.Label.MatchesSearch(context.SearchString))
             .Select(x => new DataSourceItem(x.Name, x.Label))
             .ToList();
     }

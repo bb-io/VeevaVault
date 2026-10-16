@@ -1,4 +1,3 @@
-using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Extensions;
 using Apps.VeevaVault.Helper;
 using Apps.VeevaVault.Models.Entities.VaultObject;
@@ -7,7 +6,6 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using RestSharp;
 
 namespace Apps.VeevaVault.Handlers;
 
@@ -32,9 +30,7 @@ public class VaultObjectRecordDataHandler : VeevaVaultInvocable, IAsyncDataSourc
             .Find(context.SearchString, "name__v")
             .Build();
         
-        var request = new VeevaRequest("query", Method.Post).AddVql(vql);
-        var response = await Client.Paginate<VaultObjectRecordMinimalEntity>(request, maxPages: 2);
-
+        var response = await Client.Query<VaultObjectRecordMinimalEntity>(vql, maxPages: 1);
         return response.Select(x => new DataSourceItem(x.Id, x.Name)).ToList();
     }
 }

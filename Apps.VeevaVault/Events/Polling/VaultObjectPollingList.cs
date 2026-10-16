@@ -1,5 +1,4 @@
-﻿using Apps.VeevaVault.Api;
-using Apps.VeevaVault.Constants;
+﻿using Apps.VeevaVault.Constants;
 using Apps.VeevaVault.Extensions;
 using Apps.VeevaVault.Helper;
 using Apps.VeevaVault.Models.Entities.VaultObject;
@@ -9,7 +8,6 @@ using Apps.VeevaVault.Models.Responses.VaultObject;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Polling;
-using RestSharp;
 
 namespace Apps.VeevaVault.Events.Polling;
 
@@ -32,8 +30,7 @@ public class VaultObjectPollingList(InvocationContext invocationContext) : Veeva
             .WhereAfterOrEqual("modified_date__v", pollingRequest.Memory.LastPollingTime.Value)
             .Build();
         
-        var request = new VeevaRequest("query", Method.Post).AddVql(vql);
-        var response = await Client.Paginate<VaultObjectRecordMinimalEntity>(request);
+        var response = await Client.Query<VaultObjectRecordMinimalEntity>(vql);
         var items = response.Select(x => new VaultObjectRecordMinimalResponse(x)).ToList();
         
         return PollingResponses.FlyIfAny(pollingStartTime, items);

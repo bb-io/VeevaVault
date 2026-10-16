@@ -33,7 +33,7 @@ public class VeevaClient(IEnumerable<AuthenticationCredentialsProvider> creds) :
         return response.Data.Select(x => x.Data).OfType<T>().ToList();
     }
     
-    public async Task<List<T>> Paginate<T>(VeevaRequest request, int? maxPages = null)
+    public async Task<List<T>> Paginate<T>(RestRequest request, int? maxPages = null)
     {
         var response = await ExecuteWithErrorHandling<PaginatedResponse<T>>(request);
         var results = response.Data;

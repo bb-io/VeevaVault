@@ -1,4 +1,5 @@
 ﻿using Apps.VeevaVault.Api;
+using Apps.VeevaVault.Extensions;
 using Apps.VeevaVault.Models.Responses.VaultObject.Api;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -16,9 +17,7 @@ public class VaultObjectDataHandler(InvocationContext invocationContext)
         var response = await Client.ExecuteWithErrorHandling<RetrieveVaultObjectsResponse>(request);
 
         return response.Objects
-            .Where(x => 
-                string.IsNullOrWhiteSpace(context.SearchString) || 
-                x.Label.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
+            .Where(x => x.Label.MatchesSearch(context.SearchString))
             .Select(x => new DataSourceItem(x.Name, x.Label))
             .ToList();
     }

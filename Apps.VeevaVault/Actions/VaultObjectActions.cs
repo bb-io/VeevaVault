@@ -28,9 +28,7 @@ public class VaultObjectActions(InvocationContext invocationContext) : VeevaVaul
             .Find(searchInput.NameContains, "name__v")
             .Build();
         
-        var request = new VeevaRequest("query", Method.Post).AddVql(vql);
-
-        var response = await Client.Paginate<VaultObjectRecordMinimalEntity>(request);
+        var response = await Client.Query<VaultObjectRecordMinimalEntity>(vql);
         return new(response.Select(x => new VaultObjectRecordMinimalResponse(x)).ToList());
     }
 
