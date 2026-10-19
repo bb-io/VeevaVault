@@ -10,6 +10,7 @@ using Apps.VeevaVault.Models.Responses.Document.Api;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using RestSharp;
 
 namespace Apps.VeevaVault.Actions;
 
@@ -57,5 +58,20 @@ public class DocumentActions(InvocationContext invocationContext) : VeevaVaultIn
         var request = new VeevaRequest($"objects/documents/{documentIdentifier.DocumentId}");
         var response = await Client.ExecuteWithErrorHandling<RetrieveDocumentResponse>(request);
         return new(response.Document);
+    }
+
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/documents/update-documents/update-single-document/
+    [Action("Update document", Description = "Update fields of a specific document")]
+    public Task UpdateDocument(
+        [ActionParameter] DocumentIdentifier documentIdentifier,
+        [ActionParameter] UpdateDocumentRequest input)
+    {
+        input.Validate();
+
+        var request = new VeevaRequest($"objects/documents/{documentIdentifier.DocumentId}", Method.Put);
+        foreach (var (name, value) in input.DocumentFieldNames.Zip(input.DocumentFieldValues))
+            request.AddParameter(name, value);
+
+        return Client.ExecuteWithErrorHandling(request);
     }
 }

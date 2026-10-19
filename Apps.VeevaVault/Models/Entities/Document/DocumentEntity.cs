@@ -19,7 +19,7 @@ public class DocumentEntity
     [JsonProperty("document_number__v")]
     public string DocumentNumber { get; set; } = string.Empty;
 
-    [JsonProperty("description")]
+    [JsonProperty("description__v")]
     public string? Description { get; set; }
 
     [JsonProperty("status__v")]
