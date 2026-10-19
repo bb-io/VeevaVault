@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using Apps.VeevaVault.Models.Utility.Error;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Newtonsoft.Json;
@@ -7,6 +8,19 @@ namespace Apps.VeevaVault.Extensions;
 
 public static class RestResponseExtensions
 {
+    public static string GetFilenameFromDisposition(this RestResponse response, string fallback = "file")
+    {
+        var header = response.ContentHeaders?.FirstOrDefault(IsContentDisposition) ?? 
+                     response.Headers?.FirstOrDefault(IsContentDisposition);
+
+        string? value = header?.Value;
+        if (value is null || !ContentDispositionHeaderValue.TryParse(value, out var disposition))
+            return fallback;
+
+        string? fileName = disposition.FileNameStar ?? disposition.FileName?.Trim('"');
+        return string.IsNullOrWhiteSpace(fileName) ? fallback : fileName;
+    }
+    
     public static T DeserializeWithErrorHandling<T>(this RestResponse response)
     {
         string? error = response.ExtractErrors();
@@ -47,4 +61,7 @@ public static class RestResponseExtensions
             return null;
         }
     }
+
+    private static bool IsContentDisposition(HeaderParameter header) =>
+        header.Name?.Equals("Content-Disposition", StringComparison.OrdinalIgnoreCase) == true;
 }

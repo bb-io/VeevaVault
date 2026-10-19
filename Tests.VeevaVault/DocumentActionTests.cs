@@ -8,18 +8,19 @@ namespace Tests.VeevaVault;
 [TestClass]
 public class DocumentActionTests : TestBase
 {
+    private DocumentActions Actions => new(InvocationContext, FileManager);
+    
     [TestMethod]
     public async Task SearchDocuments_ReturnsDocuments()
     {
         // Arrange
-        var actions = new DocumentActions(InvocationContext);
         var input = new SearchDocumentsRequest
         {
             NameContains = "",
         };
 
         // Act
-        var result = await actions.SearchDocuments(input);
+        var result = await Actions.SearchDocuments(input);
 
         // Assert
         PrintJsonResult(result);
@@ -30,11 +31,10 @@ public class DocumentActionTests : TestBase
     public async Task GetDocument_ReturnsDocument()
     {
         // Arrange
-        var actions = new DocumentActions(InvocationContext);
         var input = new DocumentIdentifier { DocumentId = "2504" };
 
         // Act
-        var result = await actions.GetDocument(input);
+        var result = await Actions.GetDocument(input);
 
         // Assert
         PrintJsonResult(result);
@@ -45,7 +45,6 @@ public class DocumentActionTests : TestBase
     public async Task UpdateDocument_IsSuccess()
     {
         // Arrange
-        var actions = new DocumentActions(InvocationContext);
         var identifier = new DocumentIdentifier { DocumentId = "2504" };
 
         string updatedFieldValue = "test2";
@@ -56,6 +55,22 @@ public class DocumentActionTests : TestBase
         };
 
         // Act
-        await actions.UpdateDocument(identifier, input);
+        await Actions.UpdateDocument(identifier, input);
+    }
+
+    [TestMethod]
+    public async Task DownloadDocumentAttachment_IsSuccess()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
+        var attachmentIdentifier = new DocumentAttachmentIdentifier { AttachmentId = "2701" };
+
+        // Act
+        var result = await Actions.DownloadDocumentAttachment(documentIdentifier, attachmentIdentifier);
+
+        // Assert
+        Console.WriteLine(result.File.Name);
+        Console.WriteLine(result.File.ContentType);
+        Assert.IsNotNull(result.File);
     }
 }

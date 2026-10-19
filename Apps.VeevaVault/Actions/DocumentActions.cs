@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Constants;
 using Apps.VeevaVault.Extensions;
@@ -5,17 +6,21 @@ using Apps.VeevaVault.Helper;
 using Apps.VeevaVault.Models.Entities.Document;
 using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Requests.Document;
+using Apps.VeevaVault.Models.Responses;
 using Apps.VeevaVault.Models.Responses.Document;
 using Apps.VeevaVault.Models.Responses.Document.Api;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
 
 namespace Apps.VeevaVault.Actions;
 
 [ActionList("Documents")]
-public class DocumentActions(InvocationContext invocationContext) : VeevaVaultInvocable(invocationContext)
+public class DocumentActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) 
+    : VeevaVaultInvocable(invocationContext)
 {
     [Action("Search documents", Description = "Search documents with a specific criteria")]
     public async Task<SearchDocumentsResponse> SearchDocuments(
@@ -73,5 +78,25 @@ public class DocumentActions(InvocationContext invocationContext) : VeevaVaultIn
             request.AddParameter(name, value);
 
         return Client.ExecuteWithErrorHandling(request);
+    }
+
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/documents/document-attachments/download-document-attachment-version/
+    [Action("Download document attachment", Description = "Download a specific attachment")]
+    public async Task<FileResponse> DownloadDocumentAttachment(
+        [ActionParameter] DocumentIdentifier documentIdentifier,
+        [ActionParameter] DocumentAttachmentIdentifier attachmentIdentifier)
+    {
+        string endpoint = $"objects/documents/{documentIdentifier.DocumentId}/attachments/{attachmentIdentifier.AttachmentId}/file";
+        var request = new VeevaRequest(endpoint);
+        var response = await Client.ExecuteWithErrorHandling(request);
+
+        string contentType = response.ContentType ?? MediaTypeNames.Application.Octet;
+        string fileName = response.GetFilenameFromDisposition();
+
+        var responseBytes = response.RawBytes ?? throw new PluginApplicationException("Vault returned 0 bytes");
+        using var memoryStream = new MemoryStream(responseBytes);
+
+        var file = await fileManagementClient.UploadAsync(memoryStream, contentType, fileName);
+        return new(file);
     }
 }
