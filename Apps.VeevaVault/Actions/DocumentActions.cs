@@ -13,6 +13,7 @@ using Apps.VeevaVault.Models.Utility.Wrapper;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
@@ -89,16 +90,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         [ActionParameter] DocumentAttachmentIdentifier attachmentIdentifier)
     {
         string endpoint = $"objects/documents/{documentIdentifier.DocumentId}/attachments/{attachmentIdentifier.AttachmentId}/file";
-        var request = new VeevaRequest(endpoint);
-        var response = await Client.ExecuteWithErrorHandling(request);
-
-        string contentType = response.ContentType ?? MediaTypeNames.Application.Octet;
-        string fileName = response.GetFilenameFromDisposition();
-
-        var responseBytes = response.RawBytes ?? throw new PluginApplicationException("Vault returned 0 bytes");
-        using var memoryStream = new MemoryStream(responseBytes);
-
-        var file = await fileManagementClient.UploadAsync(memoryStream, contentType, fileName);
+        var file = await DownloadFileReference(endpoint);
         return new(file);
     }
 
@@ -116,5 +108,34 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
 
         var response = await Client.ExecuteWithErrorHandling<DataArrayWrapper<CreateDocumentAttachmentResponse>>(request);
         return new(response.Data.First());
+    }
+    
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/documents/retrieve-documents/download-document-file/
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/documents/retrieve-documents/download-document-version-file/
+    [Action("Download document", Description = "Download a specific document file")]
+    public async Task<FileResponse> DownloadDocument(
+        [ActionParameter] DocumentIdentifier documentIdentifier,
+        [ActionParameter] DownloadDocumentRequest input)
+    {
+        string endpoint = !string.IsNullOrEmpty(input.Version) 
+            ? $"objects/documents/{documentIdentifier.DocumentId}/{DocumentVersionHelper.ToVersionPath(input.Version)}/file" 
+            : $"objects/documents/{documentIdentifier.DocumentId}/file";
+        
+        var file = await DownloadFileReference(endpoint);
+        return new(file);
+    }
+
+    private async Task<FileReference> DownloadFileReference(string endpoint)
+    {
+        var request = new VeevaRequest(endpoint);
+        var response = await Client.ExecuteWithErrorHandling(request);
+
+        string contentType = response.ContentType ?? MediaTypeNames.Application.Octet;
+        string fileName = response.GetFilenameFromDisposition();
+
+        var responseBytes = response.RawBytes ?? throw new PluginApplicationException("Vault returned 0 bytes");
+        using var memoryStream = new MemoryStream(responseBytes);
+
+        return await fileManagementClient.UploadAsync(memoryStream, contentType, fileName);
     }
 }

@@ -76,6 +76,25 @@ public class DocumentActionTests : TestBase
     }
 
     [TestMethod]
+    public async Task DownloadDocument_IsSuccess()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
+        var input = new DownloadDocumentRequest
+        {
+            Version = "0.1"
+        };
+
+        // Act
+        var result = await Actions.DownloadDocument(documentIdentifier, input);
+
+        // Assert
+        Console.WriteLine(result.File.Name);
+        Console.WriteLine(result.File.ContentType);
+        Assert.IsNotNull(result.File);
+    }
+
+    [TestMethod]
     public async Task UploadDocumentAttachment_IsSuccess()
     {
         // Arrange
