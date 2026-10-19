@@ -1,6 +1,7 @@
 using Apps.VeevaVault.Actions;
 using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Requests.Document;
+using Blackbird.Applications.Sdk.Common.Files;
 using Tests.VeevaVault.Base;
 
 namespace Tests.VeevaVault;
@@ -72,5 +73,20 @@ public class DocumentActionTests : TestBase
         Console.WriteLine(result.File.Name);
         Console.WriteLine(result.File.ContentType);
         Assert.IsNotNull(result.File);
+    }
+
+    [TestMethod]
+    public async Task UploadDocumentAttachment_IsSuccess()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
+        var input = new UploadDocumentAttachmentRequest { File = new FileReference { Name = "hello.txt" } };
+
+        // Act
+        var result = await Actions.UploadDocumentAttachment(documentIdentifier, input);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
     }
 }

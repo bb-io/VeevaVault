@@ -9,11 +9,13 @@ using Apps.VeevaVault.Models.Requests.Document;
 using Apps.VeevaVault.Models.Responses;
 using Apps.VeevaVault.Models.Responses.Document;
 using Apps.VeevaVault.Models.Responses.Document.Api;
+using Apps.VeevaVault.Models.Utility.Wrapper;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using RestSharp;
 
 namespace Apps.VeevaVault.Actions;
@@ -81,7 +83,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
     }
 
     // https://general.veevavault.dev/vault-api/api-reference/26.2/documents/document-attachments/download-document-attachment-version/
-    [Action("Download document attachment", Description = "Download a specific attachment")]
+    [Action("Download document attachment", Description = "Download the latest version of the specified attachment from the document")]
     public async Task<FileResponse> DownloadDocumentAttachment(
         [ActionParameter] DocumentIdentifier documentIdentifier,
         [ActionParameter] DocumentAttachmentIdentifier attachmentIdentifier)
@@ -98,5 +100,21 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
 
         var file = await fileManagementClient.UploadAsync(memoryStream, contentType, fileName);
         return new(file);
+    }
+
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/documents/document-attachments/create-document-attachment/
+    [Action("Upload document attachment", Description = "Create and upload an attachment on the latest version of a document")]
+    public async Task<UploadDocumentAttachmentResponse> UploadDocumentAttachment(
+        [ActionParameter] DocumentIdentifier documentIdentifier,
+        [ActionParameter] UploadDocumentAttachmentRequest input)
+    {
+        await using var fileStream = await fileManagementClient.DownloadAsync(input.File);
+        var fileBytes = await fileStream.GetByteData();
+        
+        var request = new VeevaRequest($"objects/documents/{documentIdentifier.DocumentId}/attachments", Method.Post)
+            .AddFile("file", fileBytes, input.File.Name);
+
+        var response = await Client.ExecuteWithErrorHandling<DataArrayWrapper<CreateDocumentAttachmentResponse>>(request);
+        return new(response.Data.First());
     }
 }
