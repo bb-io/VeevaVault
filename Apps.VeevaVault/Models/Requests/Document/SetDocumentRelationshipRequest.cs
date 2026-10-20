@@ -8,9 +8,6 @@ public class SetDocumentRelationshipRequest
 {
     [Display("Relationship type"), DataSource(typeof(DocumentRelationshipDataHandler))]
     public string RelationshipType { get; set; } = string.Empty;
-    
-    [Display("Source document version"), DataSource(typeof(DocumentVersionDataHandler))]
-    public string SourceDocumentVersion { get; set; } = string.Empty;
 
     [Display("Target document ID"), DataSource(typeof(DocumentDataHandler))]
     public string TargetDocumentId { get; set; } = string.Empty;

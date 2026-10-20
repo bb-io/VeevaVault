@@ -3,6 +3,7 @@ using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Constants;
 using Apps.VeevaVault.Extensions;
 using Apps.VeevaVault.Helper;
+using Apps.VeevaVault.Models.Entities.Common;
 using Apps.VeevaVault.Models.Entities.Document;
 using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Requests.Document;
@@ -149,9 +150,10 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
     [Action("Set document relationship", Description = "Create a new relationship on a document")]
     public async Task<SetDocumentRelationshipResponse> SetDocumentRelationship(
         [ActionParameter] DocumentIdentifier documentIdentifier,
+        [ActionParameter] DocumentVersionIdentifier documentVersionIdentifier,
         [ActionParameter] SetDocumentRelationshipRequest input)
     {
-        string version = DocumentVersionHelper.ToVersionPath(input.SourceDocumentVersion);
+        string version = DocumentVersionHelper.ToVersionPath(documentVersionIdentifier.DocumentVersion);
         string endpoint = $"objects/documents/{documentIdentifier.DocumentId}/{version}/relationships";
 
         var request = new VeevaRequest(endpoint, Method.Post)
@@ -159,6 +161,20 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
             .AddParameter("relationship_type__v", input.RelationshipType);
         var response = await Client.ExecuteWithErrorHandling<CreateSingleDocumentRelationshipResponse>(request);
         return new(response);
+    }
+
+    // https://general.veevavault.dev/vault-api/api-reference/26.1/document-lifecycle-workflows/document-user-actions/initiate-document-user-action/
+    [Action("Start document action", Description = "Initiate a user action")]
+    public Task StartDocumentAction(
+        [ActionParameter] DocumentIdentifier documentIdentifier,
+        [ActionParameter] DocumentVersionIdentifier documentVersionIdentifier,
+        [ActionParameter] DocumentUserActionIdentifier actionIdentifier)
+    {
+        string version = DocumentVersionHelper.ToVersionPath(documentVersionIdentifier.DocumentVersion);
+        string endpoint = $"objects/documents/{documentIdentifier.DocumentId}/{version}/lifecycle_actions/{actionIdentifier.ActionName}";
+        
+        var request = new VeevaRequest(endpoint, Method.Put);
+        return Client.ExecuteWithErrorHandling(request);
     }
 
     private async Task<FileReference> DownloadFileReference(string endpoint)

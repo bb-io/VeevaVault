@@ -197,4 +197,20 @@ public class HandlerTests : TestBase
         PrintDataHandlerResult(result);
         Assert.IsNotNull(result);
     }
+    
+    [TestMethod]
+    public async Task DocumentUserActionDataHandler_ReturnsUserActions()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentIdentifier { DocumentId = "2802" };
+        var documentVersionIdentifier = new DocumentVersionIdentifier { DocumentVersion = "0.1" };
+        var handler = new DocumentUserActionDataHandler(InvocationContext, documentIdentifier, documentVersionIdentifier);
+    
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+    
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
 }

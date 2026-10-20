@@ -134,18 +134,30 @@ public class DocumentActionTests : TestBase
     {
         // Arrange
         var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
+        var documentVersionIdentifier = new DocumentVersionIdentifier { DocumentVersion = "0.1" };
         var input = new SetDocumentRelationshipRequest
         {
             TargetDocumentId = "2802",
             RelationshipType = "translation_of__v",
-            SourceDocumentVersion = "0.1",
         };
 
         // Act
-        var result = await Actions.SetDocumentRelationship(documentIdentifier, input);
+        var result = await Actions.SetDocumentRelationship(documentIdentifier, documentVersionIdentifier, input);
 
         // Assert
         PrintJsonResult(result);
         Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task StartDocumentAction_IsSuccess()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentIdentifier { DocumentId = "2802" };
+        var versionIdentifier = new DocumentVersionIdentifier { DocumentVersion = "0.1" };
+        var actionIdentifier = new DocumentUserActionIdentifier { ActionName = "cancel_document__c" };
+
+        // Act
+        await Actions.StartDocumentAction(documentIdentifier, versionIdentifier, actionIdentifier);
     }
 }
