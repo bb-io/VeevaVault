@@ -27,4 +27,7 @@ public class DocumentEntity
 
     [JsonProperty("document_creation_date__v")]
     public DateTime CreationDate { get; set; }
+
+    [JsonProperty("version_modified_date__v")]
+    public DateTime UpdatedDate { get; set; }
 }

@@ -3,7 +3,6 @@ using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Constants;
 using Apps.VeevaVault.Extensions;
 using Apps.VeevaVault.Helper;
-using Apps.VeevaVault.Models.Entities.Common;
 using Apps.VeevaVault.Models.Entities.Document;
 using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Requests.Document;
@@ -30,24 +29,9 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
     public async Task<SearchDocumentsResponse> SearchDocuments(
         [ActionParameter] SearchDocumentsRequest input)
     {
-        List<long>? documentIds = null;
-        if (!string.IsNullOrEmpty(input.BinderId))
-        {
-            documentIds = await Client.GetBinderDocumentIds(input.BinderId);
-            if (documentIds.Count == 0)
-                return new([]);
-        }
-        
-        if (!string.IsNullOrEmpty(input.WorkflowStep))
-        {
-            var stepIds = await Client.GetWorkflowStepDocumentIds(input.WorkflowStep);
-            if (stepIds.Count == 0)
-                return new([]);
-
-            documentIds = documentIds is null ? stepIds : documentIds.Intersect(stepIds).ToList();
-            if (documentIds.Count == 0)
-                return new([]);
-        }
+        var documentIds = await DocumentFilterHelper.GetDocumentIds(Client, input.BinderId, input.WorkflowStep);
+        if (documentIds is { Count: 0 })
+            return new([]);
         
         string vql = new VqlBuilder("documents", VqlFields.Document)
             .Find(input.NameContains, "name__v")

@@ -9,6 +9,6 @@ public static class VqlFields
     public static readonly string[] Document = new[] 
     { 
         "id", "name__v", "type__v", "size__v", "subtype__v", "document_number__v", 
-        "description__v", "status__v", "document_creation_date__v"
+        "description__v", "status__v", "document_creation_date__v", "version_modified_date__v"
     };
 }
