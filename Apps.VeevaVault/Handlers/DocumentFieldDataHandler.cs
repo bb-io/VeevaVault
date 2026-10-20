@@ -1,5 +1,7 @@
 using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Extensions;
+using Apps.VeevaVault.Helper;
+using Apps.VeevaVault.Models.Entities.Document;
 using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Responses.Document.Api;
 using Blackbird.Applications.Sdk.Common;
@@ -39,16 +41,11 @@ public class DocumentFieldDataHandler : VeevaVaultInvocable, IAsyncDataSourceIte
 
     private async Task<string> GetDocumentTypeApiName(string documentId)
     {
-        var documentRequest = new VeevaRequest($"objects/documents/{documentId}");
-        var documentResponse = await Client.ExecuteWithErrorHandling<RetrieveDocumentResponse>(documentRequest);
-        string documentType = documentResponse.Document.Type;
+        string vql = new VqlBuilder("documents", ["TONAME(type__v)"])
+            .Where($"id = {long.Parse(documentId)}")
+            .Build();
 
-        var typesRequest = new VeevaRequest("metadata/objects/documents/types");
-        var typesResponse = await Client.ExecuteWithErrorHandling<RetrieveAllDocumentTypesResponse>(typesRequest);
-
-        var type = typesResponse.Types.FirstOrDefault(x => string.Equals(x.Label, documentType, StringComparison.OrdinalIgnoreCase))
-                   ?? throw new PluginApplicationException($"Could not find document type '{documentType}' in Vault");
-
-        return type.Value.TrimEnd('/').Split('/').Last();
+        var result = await Client.Query<DocumentTypeNameEntity>(vql);
+        return result.FirstOrDefault()?.Type ?? throw new PluginApplicationException($"Document '{documentId}' was not found");
     }
 }
