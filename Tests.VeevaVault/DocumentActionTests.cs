@@ -108,4 +108,24 @@ public class DocumentActionTests : TestBase
         PrintJsonResult(result);
         Assert.IsNotNull(result);
     }
+
+    [TestMethod]
+    public async Task CreateDocument_ReturnsCreatedDocument()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentTypeIdentifier { DocumentType = "publication__c" };
+        var input = new CreateDocumentRequest
+        {
+            File = new FileReference { Name = "hello.txt" },
+            Lifecycle = "publication__c",
+            Subtype = "poster__c",
+        };
+
+        // Act
+        var result = await Actions.CreateDocument(documentIdentifier, input);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
 }

@@ -4,6 +4,7 @@ using Apps.VeevaVault.Models.Entities.Common;
 using Apps.VeevaVault.Models.Entities.Document;
 using Apps.VeevaVault.Models.Entities.VaultObject;
 using Apps.VeevaVault.Models.Entities.Workflow;
+using Apps.VeevaVault.Models.Responses.Document.Api;
 using Apps.VeevaVault.Models.Utility.Wrapper;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using RestSharp;
@@ -12,6 +13,13 @@ namespace Apps.VeevaVault.Extensions;
 
 public static class VeevaClientExtensions
 {
+    public static async Task<DocumentEntity> GetDocument(this VeevaClient client, string documentId)
+    {
+        var request = new VeevaRequest($"objects/documents/{documentId}");
+        var response = await client.ExecuteWithErrorHandling<RetrieveDocumentResponse>(request);
+        return response.Document;
+    }
+    
     public static async Task<VaultObjectRecordEntity> GetObjectRecord(
         this VeevaClient client,
         string objectName,

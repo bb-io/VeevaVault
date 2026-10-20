@@ -51,7 +51,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         string vql = new VqlBuilder("documents", VqlFields.Document)
             .Find(input.NameContains, "name__v")
             .Where("binder__v = false")
-            .WhereContains("type__v", input.DocumentTypes)
+            .WhereContains("TONAME(type__v)", input.DocumentTypes)
             .WhereContains("id", documentIds)
             .Build();
         
@@ -63,9 +63,8 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
     [Action("Get document", Description = "Get details for a specific document")]
     public async Task<DocumentResponse> GetDocument([ActionParameter] DocumentIdentifier documentIdentifier)
     {
-        var request = new VeevaRequest($"objects/documents/{documentIdentifier.DocumentId}");
-        var response = await Client.ExecuteWithErrorHandling<RetrieveDocumentResponse>(request);
-        return new(response.Document);
+        var response = await Client.GetDocument(documentIdentifier.DocumentId);
+        return new(response);
     }
 
     // https://general.veevavault.dev/vault-api/api-reference/26.2/documents/update-documents/update-single-document/
@@ -123,6 +122,27 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         
         var file = await DownloadFileReference(endpoint);
         return new(file);
+    }
+
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/documents/create-documents/create-single-document/
+    [Action("Create document", Description = "Create a new document from a file")]
+    public async Task<DocumentResponse> CreateDocument(
+        [ActionParameter] DocumentTypeIdentifier documentTypeIdentifier,
+        [ActionParameter] CreateDocumentRequest input)
+    {
+        await using var fileStream = await fileManagementClient.DownloadAsync(input.File);
+        var fileBytes = await fileStream.GetByteData();
+        
+        var request = new VeevaRequest("objects/documents", Method.Post) { AlwaysMultipartFormData = true }
+            .AddFile("file", fileBytes, input.File.Name)
+            .AddParameter("name__v", input.CustomName ?? Path.GetFileNameWithoutExtension(input.File.Name))
+            .AddParameter("type__v", documentTypeIdentifier.DocumentType)
+            .AddParameter("lifecycle__v", input.Lifecycle)
+            .AddParameterIfNotEmpty("subtype__v", input.Subtype);
+        var response = await Client.ExecuteWithErrorHandling<CreateSingleDocumentResponse>(request);
+        
+        var createdDocumentEntity = await Client.GetDocument(response.Id.ToString());
+        return new(createdDocumentEntity);
     }
 
     private async Task<FileReference> DownloadFileReference(string endpoint)

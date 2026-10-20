@@ -59,7 +59,7 @@ public class HandlerTests : TestBase
         var handler = new DocumentTypeDataHandler(InvocationContext);
 
         // Act
-        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "email" }, CancellationToken.None);
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
 
         // Assert
         PrintDataHandlerResult(result);
@@ -144,6 +144,36 @@ public class HandlerTests : TestBase
         // Arrange
         var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
         var handler = new DocumentVersionDataHandler(InvocationContext, documentIdentifier);
+    
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+    
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task DocumentTypeLifecycleDataHandler_ReturnsLifecycles()
+    {
+        // Arrange
+        var documentTypeIdentifier = new DocumentTypeIdentifier { DocumentType = "publication__c" };
+        var handler = new DocumentTypeLifecycleDataHandler(InvocationContext, documentTypeIdentifier);
+    
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+    
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task DocumentSubtypeDataHandler_ReturnsSubtypes()
+    {
+        // Arrange
+        var documentTypeIdentifier = new DocumentTypeIdentifier { DocumentType = "publication__c" };
+        var handler = new DocumentSubtypeDataHandler(InvocationContext, documentTypeIdentifier);
     
         // Act
         var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
