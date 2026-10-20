@@ -13,6 +13,16 @@ namespace Apps.VeevaVault.Extensions;
 
 public static class VeevaClientExtensions
 {
+    public static async Task<string> GetDocumentTypeApiName(this VeevaClient client, string documentId)
+    {
+        string vql = new VqlBuilder("documents", ["TONAME(type__v)"])
+            .Where($"id = {long.Parse(documentId)}")
+            .Build();
+
+        var result = await client.Query<DocumentTypeNameEntity>(vql);
+        return result.FirstOrDefault()?.Type ?? throw new PluginApplicationException($"Document '{documentId}' was not found");
+    }
+    
     public static async Task<DocumentEntity> GetDocument(this VeevaClient client, string documentId)
     {
         var request = new VeevaRequest($"objects/documents/{documentId}");

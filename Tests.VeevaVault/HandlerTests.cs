@@ -182,4 +182,19 @@ public class HandlerTests : TestBase
         PrintDataHandlerResult(result);
         Assert.IsNotNull(result);
     }
+    
+    [TestMethod]
+    public async Task DocumentRelationshipDataHandler_ReturnsRelationships()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
+        var handler = new DocumentRelationshipDataHandler(InvocationContext, documentIdentifier);
+    
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+    
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
 }

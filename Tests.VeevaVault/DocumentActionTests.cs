@@ -113,7 +113,7 @@ public class DocumentActionTests : TestBase
     public async Task CreateDocument_ReturnsCreatedDocument()
     {
         // Arrange
-        var documentIdentifier = new DocumentTypeIdentifier { DocumentType = "publication__c" };
+        var documentTypeIdentifier = new DocumentTypeIdentifier { DocumentType = "publication__c" };
         var input = new CreateDocumentRequest
         {
             File = new FileReference { Name = "hello.txt" },
@@ -122,7 +122,27 @@ public class DocumentActionTests : TestBase
         };
 
         // Act
-        var result = await Actions.CreateDocument(documentIdentifier, input);
+        var result = await Actions.CreateDocument(documentTypeIdentifier, input);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task SetDocumentRelationship_ReturnsRelationshipId()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
+        var input = new SetDocumentRelationshipRequest
+        {
+            TargetDocumentId = "2802",
+            RelationshipType = "translation_of__v",
+            SourceDocumentVersion = "0.1",
+        };
+
+        // Act
+        var result = await Actions.SetDocumentRelationship(documentIdentifier, input);
 
         // Assert
         PrintJsonResult(result);

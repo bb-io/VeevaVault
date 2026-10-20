@@ -145,6 +145,22 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         return new(createdDocumentEntity);
     }
 
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/documents/document-relationships/retrieve-document-type-relationships/
+    [Action("Set document relationship", Description = "Create a new relationship on a document")]
+    public async Task<SetDocumentRelationshipResponse> SetDocumentRelationship(
+        [ActionParameter] DocumentIdentifier documentIdentifier,
+        [ActionParameter] SetDocumentRelationshipRequest input)
+    {
+        string version = DocumentVersionHelper.ToVersionPath(input.SourceDocumentVersion);
+        string endpoint = $"objects/documents/{documentIdentifier.DocumentId}/{version}/relationships";
+
+        var request = new VeevaRequest(endpoint, Method.Post)
+            .AddParameter("target_doc_id__v", input.TargetDocumentId)
+            .AddParameter("relationship_type__v", input.RelationshipType);
+        var response = await Client.ExecuteWithErrorHandling<CreateSingleDocumentRelationshipResponse>(request);
+        return new(response);
+    }
+
     private async Task<FileReference> DownloadFileReference(string endpoint)
     {
         var request = new VeevaRequest(endpoint);

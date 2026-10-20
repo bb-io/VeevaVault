@@ -1,7 +1,5 @@
 using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Extensions;
-using Apps.VeevaVault.Helper;
-using Apps.VeevaVault.Models.Entities.Document;
 using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Responses.Document.Api;
 using Blackbird.Applications.Sdk.Common;
@@ -27,7 +25,7 @@ public class DocumentFieldDataHandler : VeevaVaultInvocable, IAsyncDataSourceIte
 
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken ct)
     {
-        string typeApiName = await GetDocumentTypeApiName(_documentId);
+        string typeApiName = await Client.GetDocumentTypeApiName(_documentId);
 
         var typeRequest = new VeevaRequest($"metadata/objects/documents/types/{typeApiName}");
         var typeResponse = await Client.ExecuteWithErrorHandling<RetrieveAllDocumentFieldsResponse>(typeRequest);
@@ -37,15 +35,5 @@ public class DocumentFieldDataHandler : VeevaVaultInvocable, IAsyncDataSourceIte
             .Where(x => x.Label.MatchesSearch(context.SearchString) || x.Name.MatchesSearch(context.SearchString))
             .Select(x => new DataSourceItem(x.Name, x.Label ?? x.Name))
             .ToList();
-    }
-
-    private async Task<string> GetDocumentTypeApiName(string documentId)
-    {
-        string vql = new VqlBuilder("documents", ["TONAME(type__v)"])
-            .Where($"id = {long.Parse(documentId)}")
-            .Build();
-
-        var result = await Client.Query<DocumentTypeNameEntity>(vql);
-        return result.FirstOrDefault()?.Type ?? throw new PluginApplicationException($"Document '{documentId}' was not found");
     }
 }
