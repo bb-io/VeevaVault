@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Helper;
 using Apps.VeevaVault.Models.Entities.Common;
@@ -7,12 +8,29 @@ using Apps.VeevaVault.Models.Entities.Workflow;
 using Apps.VeevaVault.Models.Responses.Document.Api;
 using Apps.VeevaVault.Models.Utility.Wrapper;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Blackbird.Applications.Sdk.Common.Files;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using RestSharp;
 
 namespace Apps.VeevaVault.Extensions;
 
 public static class VeevaClientExtensions
 {
+    public static async Task<FileReference> DownloadFile(
+        this VeevaClient client,
+        RestRequest request,
+        IFileManagementClient fileManagementClient)
+    {
+        var response = await client.ExecuteWithErrorHandling(request);
+
+        string contentType = response.ContentType ?? MediaTypeNames.Application.Octet;
+        string fileName = response.GetFilenameFromDisposition();
+        var bytes = response.RawBytes ?? throw new PluginApplicationException("Vault returned 0 bytes");
+
+        using var stream = new MemoryStream(bytes);
+        return await fileManagementClient.UploadAsync(stream, contentType, fileName);
+    }
+    
     public static async Task<string> GetDocumentTypeApiName(this VeevaClient client, string documentId)
     {
         string vql = new VqlBuilder("documents", ["TONAME(type__v)"])

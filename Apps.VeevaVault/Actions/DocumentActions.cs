@@ -1,4 +1,3 @@
-using System.Net.Mime;
 using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Constants;
 using Apps.VeevaVault.Extensions;
@@ -12,8 +11,6 @@ using Apps.VeevaVault.Models.Responses.Document.Api;
 using Apps.VeevaVault.Models.Utility.Wrapper;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common.Exceptions;
-using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
@@ -74,7 +71,8 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         [ActionParameter] DocumentAttachmentIdentifier attachmentIdentifier)
     {
         string endpoint = $"objects/documents/{documentIdentifier.DocumentId}/attachments/{attachmentIdentifier.AttachmentId}/file";
-        var file = await DownloadFileReference(endpoint);
+        var request = new VeevaRequest(endpoint);
+        var file = await Client.DownloadFile(request, fileManagementClient);
         return new(file);
     }
 
@@ -105,7 +103,8 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
             ? $"objects/documents/{documentIdentifier.DocumentId}/{DocumentVersionHelper.ToVersionPath(input.Version)}/file" 
             : $"objects/documents/{documentIdentifier.DocumentId}/file";
         
-        var file = await DownloadFileReference(endpoint);
+        var request = new VeevaRequest(endpoint);
+        var file = await Client.DownloadFile(request, fileManagementClient);
         return new(file);
     }
 
@@ -159,19 +158,5 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         
         var request = new VeevaRequest(endpoint, Method.Put);
         return Client.ExecuteWithErrorHandling(request);
-    }
-
-    private async Task<FileReference> DownloadFileReference(string endpoint)
-    {
-        var request = new VeevaRequest(endpoint);
-        var response = await Client.ExecuteWithErrorHandling(request);
-
-        string contentType = response.ContentType ?? MediaTypeNames.Application.Octet;
-        string fileName = response.GetFilenameFromDisposition();
-
-        var responseBytes = response.RawBytes ?? throw new PluginApplicationException("Vault returned 0 bytes");
-        using var memoryStream = new MemoryStream(responseBytes);
-
-        return await fileManagementClient.UploadAsync(memoryStream, contentType, fileName);
     }
 }
