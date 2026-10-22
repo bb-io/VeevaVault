@@ -21,8 +21,8 @@ public class BulkTranslationActions(InvocationContext invocationContext, IFileMa
 {
     // https://general.veevavault.dev/vault-api/api-reference/26.2/bulk-translation/export-bulk-translation-file
     // https://general.veevavault.dev/vault-api/api-reference/26.2/jobs/retrieve-job-status
-    [Action("Export bulk translation file", Description = "Export a CSV bulk translation file")]
-    public async Task<FileResponse> ExportBulkTranslationFile(
+    [Action("Export bulk translations file", Description = "Export a CSV bulk translation file")]
+    public async Task<FileResponse> ExportBulkTranslationsFile(
         [ActionParameter] LanguageIdentifier languageIdentifier,
         [ActionParameter] ExportBulkTranslationFileRequest input)
     {

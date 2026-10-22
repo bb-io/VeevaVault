@@ -19,7 +19,7 @@ public class BulkTranslationActionTests : TestBase
         var input = new ExportBulkTranslationFileRequest { MessageType = MessageType.SystemMessages };
 
         // Act
-        var result = await Actions.ExportBulkTranslationFile(language, input);
+        var result = await Actions.ExportBulkTranslationsFile(language, input);
 
         // Assert
         Console.WriteLine(result.File.Name);
