@@ -3,6 +3,8 @@ using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Helper;
 using Apps.VeevaVault.Models.Entities.Common;
 using Apps.VeevaVault.Models.Entities.Document;
+using Apps.VeevaVault.Models.Entities.File;
+using Apps.VeevaVault.Models.Entities.Job;
 using Apps.VeevaVault.Models.Entities.VaultObject;
 using Apps.VeevaVault.Models.Entities.Workflow;
 using Apps.VeevaVault.Models.Responses.Document.Api;
@@ -16,6 +18,45 @@ namespace Apps.VeevaVault.Extensions;
 
 public static class VeevaClientExtensions
 {
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/jobs/retrieve-job-status
+    public static async Task<JobStatusEntity> WaitForJob(this VeevaClient client, string startedJobId)
+    {
+        var deadline = DateTime.UtcNow + TimeSpan.FromMinutes(19);
+        
+        var statusRequest = new VeevaRequest($"services/jobs/{startedJobId}");
+        while (true)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(10));
+
+            var jobData = await client.ExecuteWithErrorHandling<DataWrapper<JobStatusEntity>>(statusRequest);
+            if (jobData.Data.Status is "SUCCESS")
+                return jobData.Data;
+
+            if (jobData.Data.Status is "ERRORS_ENCOUNTERED" or "CANCELLED" or "MISSING_FILES")
+                throw new PluginApplicationException($"Vault job {startedJobId} finished with status {jobData.Data.Status}");
+
+            if (DateTime.UtcNow > deadline)
+                throw new PluginApplicationException("Job status check timeout exceeded");
+        }
+    }
+    
+    public static async Task<string> UploadToFileStaging(
+        this VeevaClient client,
+        byte[] fileBytes,
+        string fileName)
+    {
+        string path = $"/{Guid.NewGuid()}_{fileName}";
+
+        var request = new VeevaRequest("services/file_staging/items", Method.Post) { AlwaysMultipartFormData = true }
+            .AddParameter("kind", "file")
+            .AddParameter("path", path)
+            .AddParameter("overwrite", "true")
+            .AddFile("file", fileBytes, fileName);
+
+        var response = await client.ExecuteWithErrorHandling<DataWrapper<FileStagingItemEntity>>(request);
+        return response.Data.Path;
+    }
+    
     public static async Task<FileReference> DownloadFile(
         this VeevaClient client,
         RestRequest request,
