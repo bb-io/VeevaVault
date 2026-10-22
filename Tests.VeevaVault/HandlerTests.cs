@@ -213,4 +213,18 @@ public class HandlerTests : TestBase
         PrintDataHandlerResult(result);
         Assert.IsNotNull(result);
     }
+    
+    [TestMethod]
+    public async Task LanguageDataHandler_ReturnsLanguages()
+    {
+        // Arrange
+        var handler = new LanguageDataHandler(InvocationContext);
+    
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "ukr" }, CancellationToken.None);
+    
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
 }

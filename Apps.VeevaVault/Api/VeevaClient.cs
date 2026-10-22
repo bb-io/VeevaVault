@@ -71,6 +71,12 @@ public class VeevaClient(IEnumerable<AuthenticationCredentialsProvider> creds) :
         return new Uri($"https://{creds.Get(CredsNames.VaultDns).Value.TrimEnd('/')}/api/");
     }
     
+    public RestRequest CreateRequestFromHref(string href, Method method = Method.Get)
+    {
+        var uri = new Uri(Options.BaseUrl!, "/" + href.TrimStart('/'));
+        return new RestRequest(uri, method);
+    }
+    
     protected override Exception ConfigureErrorException(RestResponse response)
     {
         string error = response.ExtractErrors() ?? $"Request failed with status code {response.StatusCode}.";
