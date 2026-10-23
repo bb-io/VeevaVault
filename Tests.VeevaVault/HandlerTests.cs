@@ -255,4 +255,19 @@ public class HandlerTests : TestBase
         PrintDataHandlerResult(result);
         Assert.IsNotNull(result);
     }
+    
+    [TestMethod]
+    public async Task VerdictDataHandler_ReturnsVerdicts()
+    {
+        // Arrange
+        var taskId = new WorkflowTaskIdentifier { TaskId = "1101" };
+        var handler = new VerdictDataHandler(InvocationContext, taskId);
+    
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+    
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
 }

@@ -2,6 +2,7 @@ using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Extensions;
 using Apps.VeevaVault.Models.Entities.Workflow;
 using Apps.VeevaVault.Models.Identifiers;
+using Apps.VeevaVault.Models.Identifiers.Optional;
 using Apps.VeevaVault.Models.Requests.WorkflowTask;
 using Apps.VeevaVault.Models.Responses.WorkflowTask;
 using Blackbird.Applications.Sdk.Common;
@@ -39,6 +40,8 @@ public class WorkflowTaskActions(InvocationContext invocationContext) : VeevaVau
         return new(response);
     }
     
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/workflows/workflow-tasks/accept-single-record-workflow-task/
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/workflows/workflow-tasks/accept-multi-item-workflow-task/
     [Action("Accept workflow task", Description = "Accept an available workflow task")]
     public async Task AcceptWorkflowTask([ActionParameter] WorkflowTaskIdentifier taskIdentifier)
     {
@@ -46,6 +49,40 @@ public class WorkflowTaskActions(InvocationContext invocationContext) : VeevaVau
         string action = task.IsMultiItem ? "mdwaccept" : "accept";
 
         var request = new VeevaRequest($"objects/objectworkflows/tasks/{taskIdentifier.TaskId}/actions/{action}", Method.Post);
+        await Client.ExecuteWithErrorHandling(request);
+    }
+
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/workflows/workflow-tasks/complete-single-record-workflow-task/
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/workflows/workflow-tasks/complete-multi-item-workflow-task/
+    [Action("Complete workflow task", Description = "Complete an available workflow task")]
+    public async Task CompleteWorkflowTask(
+        [ActionParameter] WorkflowTaskIdentifier taskIdentifier,
+        [ActionParameter] VerdictOptionalIdentifier verdictIdentifier,
+        [ActionParameter] CompleteWorkflowTaskRequest input)
+    {
+        string taskId = taskIdentifier.TaskId;
+        string action = await Client.GetCompleteActionName(taskId);
+        bool isMultiItem = action == "mdwcomplete";
+
+        var values = new Dictionary<string, string?>
+            {
+                ["verdict_public_key__c"] = verdictIdentifier.Verdict,
+                ["reason__c"] = input.Reason,
+                ["capacity__c"] = input.Capacity,
+                ["task_comment__v"] = isMultiItem ? input.Comment : null,
+            }
+            .Where(x => !string.IsNullOrWhiteSpace(x.Value))
+            .ToDictionary(x => x.Key, x => x.Value!);
+
+        var request = new VeevaRequest($"objects/objectworkflows/tasks/{taskId}/actions/{action}", Method.Post);
+        if (isMultiItem)
+            request.AddJsonBody(new[] { values });
+        else
+        {
+            foreach (var (key, value) in values)
+                request.AddParameter(key, value);
+        }
+
         await Client.ExecuteWithErrorHandling(request);
     }
 }
