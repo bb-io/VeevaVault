@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Product>Veeva Vault [Beta]</Product>
-        <Description>Description</Description>
+        <Description>Veeva Vault is the proven cloud-based platform for the life sciences industry</Description>
         <Version>1.0.0</Version>
         <PackageId>Apps.VeevaVault</PackageId>
         <AssemblyName>Apps.VeevaVault</AssemblyName>
