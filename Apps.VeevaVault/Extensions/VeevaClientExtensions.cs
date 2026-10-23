@@ -18,6 +18,14 @@ namespace Apps.VeevaVault.Extensions;
 
 public static class VeevaClientExtensions
 {
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/workflows/workflow-tasks/retrieve-workflow-task-details/
+    public static async Task<WorkflowTaskEntity> GetWorkflowTask(this VeevaClient client, string taskId)
+    {
+        var request = new VeevaRequest($"objects/objectworkflows/tasks/{taskId}");
+        var response = await client.ExecuteWithErrorHandling<DataArrayWrapper<WorkflowTaskEntity>>(request);
+        return response.Data.First();
+    }
+    
     // https://general.veevavault.dev/vault-api/api-reference/26.2/jobs/retrieve-job-status
     public static async Task<JobStatusEntity> WaitForJob(this VeevaClient client, string startedJobId)
     {

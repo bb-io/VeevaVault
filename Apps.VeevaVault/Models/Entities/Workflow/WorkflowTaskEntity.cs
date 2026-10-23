@@ -27,4 +27,10 @@ public class WorkflowTaskEntity
 
     [JsonProperty("assignee__v")]
     public string? AssigneeId { get; set; }
+    
+    [JsonProperty("object__v")]
+    public string? ObjectName { get; set; }
+
+    [JsonIgnore]
+    public bool IsMultiItem => ObjectName == "envelope__sys";
 }
