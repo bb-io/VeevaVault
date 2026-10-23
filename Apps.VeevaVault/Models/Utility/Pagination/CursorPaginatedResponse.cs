@@ -2,10 +2,10 @@ using Newtonsoft.Json;
 
 namespace Apps.VeevaVault.Models.Utility.Pagination;
 
-public class PaginatedResponse<T>
+public class CursorPaginatedResponse<T>
 {
     [JsonProperty("responseDetails")]
-    public PaginationDetails? Pagination { get; set; }
+    public CursorPaginationDetails? Pagination { get; set; }
 
     [JsonProperty("data")]
     public List<T> Data { get; set; } = [];

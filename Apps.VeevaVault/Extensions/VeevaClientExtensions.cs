@@ -134,6 +134,6 @@ public static class VeevaClientExtensions
     public static Task<List<T>> Query<T>(this VeevaClient client, string vql, int? maxPages = null)
     {
         var request = new VeevaRequest("query", Method.Post).AddQueryParameter("q", vql);
-        return client.Paginate<T>(request, maxPages);
+        return client.PaginateCursor<T>(request, maxPages);
     }
 }

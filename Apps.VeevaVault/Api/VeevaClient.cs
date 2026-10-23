@@ -33,9 +33,9 @@ public class VeevaClient(IEnumerable<AuthenticationCredentialsProvider> creds) :
         return response.Data.Select(x => x.Data).OfType<T>().ToList();
     }
     
-    public async Task<List<T>> Paginate<T>(RestRequest request, int? maxPages = null)
+    public async Task<List<T>> PaginateCursor<T>(RestRequest request, int? maxPages = null)
     {
-        var response = await ExecuteWithErrorHandling<PaginatedResponse<T>>(request);
+        var response = await ExecuteWithErrorHandling<CursorPaginatedResponse<T>>(request);
         var results = response.Data;
         string? nextUrl = response.Pagination?.NextPage;
         int pagesFetched = 1;
@@ -43,11 +43,36 @@ public class VeevaClient(IEnumerable<AuthenticationCredentialsProvider> creds) :
         while (!string.IsNullOrWhiteSpace(nextUrl) && (maxPages is null || pagesFetched < maxPages))
         {
             var nextUri = new Uri(Options.BaseUrl!, "/" + nextUrl.TrimStart('/'));
-            response = await ExecuteWithErrorHandling<PaginatedResponse<T>>(new RestRequest(nextUri, Method.Post));
+            response = await ExecuteWithErrorHandling<CursorPaginatedResponse<T>>(new RestRequest(nextUri, Method.Post));
 
             results.AddRange(response.Data);
             nextUrl = response.Pagination?.NextPage;
             pagesFetched++;
+        }
+
+        return results;
+    }
+
+    public async Task<List<T>> PaginateOffset<T>(RestRequest request, int? maxPages = null)
+    {
+        var results = new List<T>();
+        int offset = 0;
+        int pagesFetched = 0;
+
+        while (maxPages is null || pagesFetched < maxPages)
+        {
+            request.AddOrUpdateParameter("page_size", 100);
+            request.AddOrUpdateParameter("offset", offset);
+
+            var response = await ExecuteWithErrorHandling<OffsetPaginatedResponse<T>>(request);
+            results.AddRange(response.Data);
+            pagesFetched++;
+
+            int total = response.Pagination?.Total ?? 0;
+            if (response.Data.Count == 0 || results.Count >= total)
+                break;
+
+            offset += response.Data.Count;
         }
 
         return results;
