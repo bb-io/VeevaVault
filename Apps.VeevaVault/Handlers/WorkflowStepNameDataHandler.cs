@@ -6,7 +6,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.VeevaVault.Handlers;
 
-public class WorkflowStepDataHandler(InvocationContext invocationContext) 
+public class WorkflowStepNameDataHandler(InvocationContext invocationContext) 
     : VeevaVaultInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken ct)
@@ -16,6 +16,7 @@ public class WorkflowStepDataHandler(InvocationContext invocationContext)
 
         return result
             .DistinctBy(x => x.Name)
+            // Server-side filter will throw: 'Find' operator cannot be used with 'active_workflow_task__sys' query
             .Where(x => x.Label.MatchesSearch(context.SearchString))
             .Select(x => new DataSourceItem(x.Name, x.Label))
             .ToList();

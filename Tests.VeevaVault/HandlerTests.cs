@@ -81,10 +81,10 @@ public class HandlerTests : TestBase
     }
     
     [TestMethod]
-    public async Task WorkflowStepDataHandler_ReturnsWorkflowSteps()
+    public async Task WorkflowStepNameDataHandler_ReturnsWorkflowStepNames()
     {
         // Arrange
-        var handler = new WorkflowStepDataHandler(InvocationContext);
+        var handler = new WorkflowStepNameDataHandler(InvocationContext);
 
         // Act
         var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
@@ -222,6 +222,20 @@ public class HandlerTests : TestBase
     
         // Act
         var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "ukr" }, CancellationToken.None);
+    
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task UserDataHandler_ReturnsUsers()
+    {
+        // Arrange
+        var handler = new UserDataHandler(InvocationContext);
+    
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
     
         // Assert
         PrintDataHandlerResult(result);

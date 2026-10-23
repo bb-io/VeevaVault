@@ -15,6 +15,6 @@ public class SearchDocumentsRequest
     [Display("Document binder ID"), DataSource(typeof(BinderDataHandler))]
     public string? BinderId { get; set; }
 
-    [Display("Workflow step"), DataSource(typeof(WorkflowStepDataHandler))]
+    [Display("Workflow step"), DataSource(typeof(WorkflowStepNameDataHandler))]
     public string? WorkflowStep { get; set; }
 }
