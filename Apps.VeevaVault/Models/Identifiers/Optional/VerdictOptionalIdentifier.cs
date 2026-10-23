@@ -7,5 +7,5 @@ namespace Apps.VeevaVault.Models.Identifiers.Optional;
 public class VerdictOptionalIdentifier
 {
     [Display("Verdict"), DataSource(typeof(VerdictDataHandler))]
-    public string Verdict { get; set; } = string.Empty;
+    public string? Verdict { get; set; }
 }
