@@ -26,9 +26,9 @@ public class DocumentResponse(DocumentEntity entity)
     [Display("Document status")]
     public string Status { get; set; } = entity.Status;
 
-    [Display("Document created at")]
-    public DateTime CreatedAt { get; set; } = entity.CreationDate;
+    [Display("Document created date")]
+    public DateTime CreatedDate { get; set; } = entity.CreationDate;
 
-    [Display("Document updated at")]
-    public DateTime UpdatedAt { get; set; } = entity.UpdatedDate;
+    [Display("Document updated date")]
+    public DateTime UpdatedDate { get; set; } = entity.UpdatedDate;
 }
