@@ -241,4 +241,18 @@ public class HandlerTests : TestBase
         PrintDataHandlerResult(result);
         Assert.IsNotNull(result);
     }
+    
+    [TestMethod]
+    public async Task WorkflowTaskDataHandler_ReturnsTasks()
+    {
+        // Arrange
+        var handler = new WorkflowTaskDataHandler(InvocationContext);
+    
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+    
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
 }

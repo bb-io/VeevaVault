@@ -1,8 +1,10 @@
 using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Extensions;
 using Apps.VeevaVault.Models.Entities.Workflow;
+using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Requests.WorkflowTask;
 using Apps.VeevaVault.Models.Responses.WorkflowTask;
+using Apps.VeevaVault.Models.Utility.Wrapper;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -28,5 +30,15 @@ public class WorkflowTaskActions(InvocationContext invocationContext) : VeevaVau
 
         var response = entities.Select(x => new WorkflowTaskResponse(x)).ToList();
         return new(response);
+    }
+    
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/workflows/workflow-tasks/retrieve-workflow-task-details/
+    [Action("Get workflow task", Description = "Get details for a specific workflow task")]
+    public async Task<WorkflowTaskResponse> GetWorkflowTask(
+        [ActionParameter] WorkflowTaskIdentifier workflowTaskIdentifier)
+    {
+        var request = new VeevaRequest($"objects/objectworkflows/tasks/{workflowTaskIdentifier.TaskId}");
+        var response = await Client.ExecuteWithErrorHandling<DataArrayWrapper<WorkflowTaskEntity>>(request);
+        return new(response.Data.First());
     }
 }

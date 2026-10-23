@@ -1,4 +1,5 @@
 using Apps.VeevaVault.Actions;
+using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Requests.WorkflowTask;
 using Tests.VeevaVault.Base;
 
@@ -15,11 +16,25 @@ public class WorkflowTaskActionTests : TestBase
         // Arrange
         var input = new SearchWorkflowTasksRequest
         {
-            AssigneeId = "24178159"
+            AssigneeId = "5695223"
         };
 
         // Act
         var result = await Actions.SearchWorkflowTasks(input);
+
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task GetWorkflowTask_ReturnsWorkflowTask()
+    {
+        // Arrange
+        var taskId = new WorkflowTaskIdentifier { TaskId = "1201" };
+
+        // Act
+        var result = await Actions.GetWorkflowTask(taskId);
 
         // Assert
         PrintJsonResult(result);
