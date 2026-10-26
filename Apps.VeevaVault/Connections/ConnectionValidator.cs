@@ -28,8 +28,8 @@ public class ConnectionValidator(InvocationContext invocationContext) : BaseInvo
                 Message = "Success"
             };
 
-        } 
-        catch (PluginApplicationException ex)
+        }
+        catch (Exception ex) when (ex is PluginApplicationException or PluginMisconfigurationException)
         {
             InvocationContext.Logger?.LogError($"Connection validation failed: {ex.Message}", []);
 

@@ -93,7 +93,18 @@ public class VeevaClient(IEnumerable<AuthenticationCredentialsProvider> creds) :
     
     public static Uri GetBaseUrl(IEnumerable<AuthenticationCredentialsProvider> creds)
     {
-        return new Uri($"https://{creds.Get(CredsNames.VaultDns).Value.TrimEnd('/')}/api/");
+        string input = creds.Get(CredsNames.VaultDns).Value.Trim();
+        string host = Uri.TryCreate(input, UriKind.Absolute, out var parsed) && !string.IsNullOrEmpty(parsed.Host)
+            ? parsed.Host
+            : input.Split('/')[0];
+
+        if (Uri.CheckHostName(host) == UriHostNameType.Unknown)
+        {
+            throw new PluginMisconfigurationException(
+                $"'{input}' is not a valid Vault host name. Valid format: 'yourcompany.veevavault.com'");
+        }
+        
+        return new Uri($"https://{host}/api/");
     }
     
     public RestRequest CreateRequestFromHref(string href, Method method = Method.Get)
