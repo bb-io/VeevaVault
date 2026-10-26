@@ -40,7 +40,7 @@ as you will need it to create a new connection.
 - **Upload document attachment** Create and upload an attachment on the latest version of a document
 - **Download document** Download a specific document file
 - **Create document** Create a new document from a file
-- **Set document relationship** Create a new relationship on a document
+- **Create document relationship** Create a new relationship on a document
 - **Start document action** Initiate a user action
 
 ### Vault objects

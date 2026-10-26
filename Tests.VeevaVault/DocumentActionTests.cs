@@ -1,5 +1,6 @@
 using Apps.VeevaVault.Actions;
 using Apps.VeevaVault.Models.Identifiers;
+using Apps.VeevaVault.Models.Identifiers.Optional;
 using Apps.VeevaVault.Models.Requests.Document;
 using Blackbird.Applications.Sdk.Common.Files;
 using Tests.VeevaVault.Base;
@@ -80,13 +81,10 @@ public class DocumentActionTests : TestBase
     {
         // Arrange
         var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
-        var input = new DownloadDocumentRequest
-        {
-            Version = "0.1"
-        };
+        var documentVersion = new DocumentVersionOptionalIdentifier { DocumentVersion = "0.1" };
 
         // Act
-        var result = await Actions.DownloadDocument(documentIdentifier, input);
+        var result = await Actions.DownloadDocument(documentIdentifier, documentVersion);
 
         // Assert
         Console.WriteLine(result.File.Name);
@@ -130,7 +128,7 @@ public class DocumentActionTests : TestBase
     }
 
     [TestMethod]
-    public async Task SetDocumentRelationship_ReturnsRelationshipId()
+    public async Task CreateDocumentRelationship_ReturnsRelationshipId()
     {
         // Arrange
         var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
@@ -142,7 +140,7 @@ public class DocumentActionTests : TestBase
         };
 
         // Act
-        var result = await Actions.SetDocumentRelationship(documentIdentifier, documentVersionIdentifier, input);
+        var result = await Actions.CreateDocumentRelationship(documentIdentifier, documentVersionIdentifier, input);
 
         // Assert
         PrintJsonResult(result);

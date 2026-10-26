@@ -4,6 +4,7 @@ using Apps.VeevaVault.Extensions;
 using Apps.VeevaVault.Helper;
 using Apps.VeevaVault.Models.Entities.Document;
 using Apps.VeevaVault.Models.Identifiers;
+using Apps.VeevaVault.Models.Identifiers.Optional;
 using Apps.VeevaVault.Models.Requests.Document;
 using Apps.VeevaVault.Models.Responses;
 using Apps.VeevaVault.Models.Responses.Document;
@@ -97,10 +98,12 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
     [Action("Download document", Description = "Download a specific document file")]
     public async Task<FileResponse> DownloadDocument(
         [ActionParameter] DocumentIdentifier documentIdentifier,
-        [ActionParameter] DownloadDocumentRequest input)
+        [ActionParameter] DocumentVersionOptionalIdentifier versionIdentifier)
     {
-        string endpoint = !string.IsNullOrEmpty(input.Version) 
-            ? $"objects/documents/{documentIdentifier.DocumentId}/{DocumentVersionHelper.ToVersionPath(input.Version)}/file" 
+        string? documentVersion = versionIdentifier.DocumentVersion;
+        
+        string endpoint = !string.IsNullOrEmpty(documentVersion) 
+            ? $"objects/documents/{documentIdentifier.DocumentId}/{DocumentVersionHelper.ToVersionPath(documentVersion)}/file" 
             : $"objects/documents/{documentIdentifier.DocumentId}/file";
         
         var request = new VeevaRequest(endpoint);
@@ -130,8 +133,8 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
     }
 
     // https://general.veevavault.dev/vault-api/api-reference/26.2/documents/document-relationships/retrieve-document-type-relationships/
-    [Action("Set document relationship", Description = "Create a new relationship on a document")]
-    public async Task<SetDocumentRelationshipResponse> SetDocumentRelationship(
+    [Action("Create document relationship", Description = "Create a new relationship on a document")]
+    public async Task<SetDocumentRelationshipResponse> CreateDocumentRelationship(
         [ActionParameter] DocumentIdentifier documentIdentifier,
         [ActionParameter] DocumentVersionIdentifier documentVersionIdentifier,
         [ActionParameter] SetDocumentRelationshipRequest input)
