@@ -58,15 +58,15 @@ public class BulkTranslationActions(InvocationContext invocationContext, IFileMa
         string startedJobId = importResponse.Data.JobId;
         await Client.WaitForJob(startedJobId);
 
-        var jobSummaryRequest = new VeevaRequest($"services/jobs/{startedJobId}/summary");
-        var jobSummaryResponse = await Client.ExecuteWithErrorHandling<DataWrapper<RetrieveImportJobSummaryResponse>>(jobSummaryRequest);
-        
         var errorsRequest = new VeevaRequest($"services/jobs/{startedJobId}/errors").AddHeader("Accept", "text/csv");
         var errorsResponse = await Client.ExecuteWithErrorHandling(errorsRequest);
 
         var errors = errorsResponse.Content?.ParseJobErrors();
-        return errors?.Count > 0 
-            ? throw new PluginApplicationException($"Import failed with errors: {string.Join("; ", errors)}") 
-            : new(jobSummaryResponse.Data);
+        if (errors?.Count > 0)
+            throw new PluginApplicationException($"Import failed with errors: {string.Join("; ", errors)}");
+
+        var jobSummaryRequest = new VeevaRequest($"services/jobs/{startedJobId}/summary");
+        var jobSummaryResponse = await Client.ExecuteWithErrorHandling<DataWrapper<RetrieveImportJobSummaryResponse>>(jobSummaryRequest);
+        return new(jobSummaryResponse.Data);
     }
 }
