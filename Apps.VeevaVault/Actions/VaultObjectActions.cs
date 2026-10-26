@@ -83,7 +83,7 @@ public class VaultObjectActions(InvocationContext invocationContext) : VeevaVaul
 
         string updatedEntityId = response.FirstOrDefault()?.Id ?? 
                                  throw new PluginApplicationException("Vault did not return the updated record ID");
-        var createdEntity = await Client.GetObjectRecord(objectIdentifier.VaultObjectName, updatedEntityId);
-        return new(createdEntity);
+        var updatedEntity = await Client.GetObjectRecord(objectIdentifier.VaultObjectName, updatedEntityId);
+        return new(updatedEntity);
     }
 }

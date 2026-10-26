@@ -23,9 +23,9 @@ public class WorkflowTaskResponse(WorkflowTaskEntity entity)
     [Display("Workflow task assigned date")]
     public DateTime? AssignedDate { get; set; } = entity.AssignedDate;
 
-    [Display("due_date__v")]
-    public DateTime? DueDate { get; set; }
+    [Display("Due date")]
+    public DateTime? DueDate { get; set; } = entity.DueDate;
 
-    [Display("assignee__v")]
-    public string? AssigneeId { get; set; }
+    [Display("Assignee ID")]
+    public string? AssigneeId { get; set; } = entity.AssigneeId;
 }

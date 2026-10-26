@@ -28,8 +28,6 @@ public abstract class VerdictPromptDataHandler : VeevaVaultInvocable, IAsyncData
         _verdict = verdictIdentifier.Verdict;
     }
 
-    protected abstract ActionVerdictPromptGroup? SelectGroup(ActionVerdict verdict);
-
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken ct)
     {
         var verdicts = await Client.GetTaskVerdicts(_taskId);
@@ -40,4 +38,6 @@ public abstract class VerdictPromptDataHandler : VeevaVaultInvocable, IAsyncData
             .Select(x => new DataSourceItem(x.Name, x.Label))
             .ToList() ?? [];
     }
+
+    protected abstract ActionVerdictPromptGroup? SelectGroup(ActionVerdict verdict);
 }

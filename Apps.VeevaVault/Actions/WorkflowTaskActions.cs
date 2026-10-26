@@ -45,8 +45,7 @@ public class WorkflowTaskActions(InvocationContext invocationContext) : VeevaVau
     [Action("Accept workflow task", Description = "Accept an available workflow task")]
     public async Task AcceptWorkflowTask([ActionParameter] WorkflowTaskIdentifier taskIdentifier)
     {
-        var task = await Client.GetWorkflowTask(taskIdentifier.TaskId);
-        string action = task.IsMultiItem ? "mdwaccept" : "accept";
+        string action = await Client.GetAcceptActionName(taskIdentifier.TaskId);
 
         var request = new VeevaRequest($"objects/objectworkflows/tasks/{taskIdentifier.TaskId}/actions/{action}", Method.Post);
         await Client.ExecuteWithErrorHandling(request);
@@ -62,7 +61,7 @@ public class WorkflowTaskActions(InvocationContext invocationContext) : VeevaVau
     {
         string taskId = taskIdentifier.TaskId;
         string action = await Client.GetCompleteActionName(taskId);
-        bool isMultiItem = action == "mdwcomplete";
+        bool isMultiItem = action.IsMultiItemAction();
 
         var values = new Dictionary<string, string?>
             {

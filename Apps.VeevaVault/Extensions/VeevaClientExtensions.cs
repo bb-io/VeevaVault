@@ -1,5 +1,6 @@
 using System.Net.Mime;
 using Apps.VeevaVault.Api;
+using Apps.VeevaVault.Constants;
 using Apps.VeevaVault.Helper;
 using Apps.VeevaVault.Models.Entities.Common;
 using Apps.VeevaVault.Models.Entities.Document;
@@ -12,6 +13,7 @@ using Apps.VeevaVault.Models.Utility.Wrapper;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Applications.Sdk.Utils.Parsers;
 using RestSharp;
 
 namespace Apps.VeevaVault.Extensions;
@@ -28,17 +30,24 @@ public static class VeevaClientExtensions
         return response.Data.Controls.SelectMany(x => x.Verdicts).ToList();
     }
     
-    // https://general.veevavault.dev/vault-api/api-reference/26.2/workflows/workflow-tasks/retrieve-workflow-task-actions/
-    public static async Task<string> GetCompleteActionName(this VeevaClient client, string taskId)
+    public static Task<string> GetAcceptActionName(this VeevaClient client, string taskId)
     {
-        var request = new VeevaRequest($"objects/objectworkflows/tasks/{taskId}/actions");
-        var response = await client.ExecuteWithErrorHandling<DataArrayWrapper<WorkflowTaskActionNameEntity>>(request);
-
-        return response.Data.Select(x => x.Name).FirstOrDefault(x => x is "complete" or "mdwcomplete") ?? 
-               throw new PluginMisconfigurationException(
-                   $"Task {taskId} can't be completed by the connected user. It's not assigned to them or is already completed.");
+        return client.GetAvailableTaskActionName(
+            taskId, 
+            WorkflowTaskActionName.Accept,
+            WorkflowTaskActionName.MultiItemAccept,
+            $"Task {taskId} can't be accepted by the connected user. It's not available to them or is already accepted.");
     }
-    
+
+    public static Task<string> GetCompleteActionName(this VeevaClient client, string taskId)
+    {
+        return client.GetAvailableTaskActionName(
+            taskId, 
+            WorkflowTaskActionName.Complete,
+            WorkflowTaskActionName.MultiItemComplete,
+            $"Task {taskId} can't be completed by the connected user. It's not assigned to them or is already completed.");
+    }
+
     // https://general.veevavault.dev/vault-api/api-reference/26.2/workflows/workflow-tasks/retrieve-workflow-task-details/
     public static async Task<WorkflowTaskEntity> GetWorkflowTask(this VeevaClient client, string taskId)
     {
@@ -103,8 +112,10 @@ public static class VeevaClientExtensions
     
     public static async Task<string> GetDocumentTypeApiName(this VeevaClient client, string documentId)
     {
+        var parsedDocumentId = LongParser.Parse(documentId, "Document ID");
+        
         string vql = new VqlBuilder("documents", ["TONAME(type__v)"])
-            .Where($"id = {long.Parse(documentId)}")
+            .Where($"id = {parsedDocumentId}")
             .Build();
 
         var result = await client.Query<DocumentTypeNameEntity>(vql);
@@ -130,8 +141,7 @@ public static class VeevaClientExtensions
     
     public static async Task<List<long>> GetBinderDocumentIds(this VeevaClient client, string binderId)
     {
-        if (!long.TryParse(binderId, out long parsedBinderId))
-            throw new PluginMisconfigurationException($"Binder ID '{binderId}' is not a valid number");
+        var parsedBinderId = LongParser.Parse(binderId, "Binder ID");
 
         string vql = new VqlBuilder("binder_node__sys", ["content_id__sys"])
             .Where($"parent_binder_id__sys = {parsedBinderId}")
@@ -164,5 +174,20 @@ public static class VeevaClientExtensions
     {
         var request = new VeevaRequest("query", Method.Post).AddQueryParameter("q", vql);
         return client.PaginateCursor<T>(request, maxPages);
+    }
+    
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/workflows/workflow-tasks/retrieve-workflow-task-actions/
+    private static async Task<string> GetAvailableTaskActionName(
+        this VeevaClient client, 
+        string taskId, 
+        string singleItemAction, 
+        string multiItemAction, 
+        string notAvailableMessage)
+    {
+        var request = new VeevaRequest($"objects/objectworkflows/tasks/{taskId}/actions");
+        var response = await client.ExecuteWithErrorHandling<DataArrayWrapper<WorkflowTaskActionNameEntity>>(request);
+
+        return response.Data.Select(x => x.Name).FirstOrDefault(x => x == singleItemAction || x == multiItemAction) ?? 
+               throw new PluginMisconfigurationException(notAvailableMessage);
     }
 }

@@ -1,9 +1,15 @@
+using Apps.VeevaVault.Constants;
 using Microsoft.VisualBasic.FileIO;
 
 namespace Apps.VeevaVault.Extensions;
 
 public static class StringExtensions
 {
+    public static bool IsMultiItemAction(this string actionName)
+    {
+        return actionName is WorkflowTaskActionName.MultiItemAccept or WorkflowTaskActionName.MultiItemComplete;
+    }
+
     public static bool MatchesSearch(this string? source, string? search)
     {
         if (string.IsNullOrWhiteSpace(search))
