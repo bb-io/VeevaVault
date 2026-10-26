@@ -1,0 +1,8 @@
+{
+  "ConnectionDefinition": {
+    "vaultDns": "",
+    "username": "",
+    "password": ""
+  },
+  "TestFolder": "TestFiles"
+}
