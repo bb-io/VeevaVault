@@ -14,12 +14,24 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Files;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Parsers;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 
 namespace Apps.VeevaVault.Extensions;
 
 public static class VeevaClientExtensions
 {
+    public static async Task<JToken?> GetDocumentFieldValue(this VeevaClient client, string documentId, string fieldName)
+    {
+        var request = new VeevaRequest($"objects/documents/{documentId}");
+        var response = await client.ExecuteWithErrorHandling<RetrieveRawDocumentResponse>(request);
+
+        if (!response.Document.TryGetValue(fieldName, out var value))
+            throw new PluginMisconfigurationException($"Field '{fieldName}' was not found on document {documentId}");
+
+        return value.Type == JTokenType.Null ? null : value;
+    }
+    
     // https://general.veevavault.dev/vault-api/api-reference/26.2/workflows/workflow-tasks/retrieve-workflow-task-action-details
     public static async Task<List<ActionVerdict>> GetTaskVerdicts(this VeevaClient client, string taskId)
     {

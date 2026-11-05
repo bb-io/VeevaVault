@@ -1,4 +1,5 @@
 ﻿using Apps.VeevaVault.Handlers;
+using Apps.VeevaVault.Handlers.DocumentField;
 using Apps.VeevaVault.Models.Identifiers;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Tests.VeevaVault.Base;
@@ -109,11 +110,26 @@ public class HandlerTests : TestBase
     }
     
     [TestMethod]
-    public async Task DocumentFieldDataHandler_ReturnsFields()
+    public async Task UpdateDocumentFieldDataHandler_ReturnsAllEditableFields()
     {
         // Arrange
         var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
-        var handler = new DocumentFieldDataHandler(InvocationContext, documentIdentifier);
+        var handler = new UpdateDocumentFieldDataHandler(InvocationContext, documentIdentifier);
+    
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+    
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task TextDocumentFieldDataHandler_ReturnsAllStringFields()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
+        var handler = new TextDocumentFieldDataHandler(InvocationContext, documentIdentifier);
     
         // Act
         var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
