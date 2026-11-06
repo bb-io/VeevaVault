@@ -34,14 +34,14 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         if (documentIds is { Count: 0 })
             return new([]);
         
-        var unquotedFields = await DocumentFilterHelper.GetUnquotedFieldNames(Client, fields);
+        var fieldTypes = await DocumentFilterHelper.GetFieldTypes(Client, fields);
         
         string vql = new VqlBuilder("documents", VqlFields.Document)
             .Find(input.NameContains, "name__v")
             .Where("binder__v = false")
             .WhereContains("TONAME(type__v)", input.DocumentTypes)
             .WhereContains("id", documentIds)
-            .WhereFieldsEqual(fields, unquotedFields)
+            .WhereFieldsEqual(fields, fieldTypes)
             .Build();
         
         var response = await Client.Query<DocumentEntity>(vql);

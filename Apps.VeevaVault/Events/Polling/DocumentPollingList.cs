@@ -33,14 +33,14 @@ public class DocumentPollingList(InvocationContext invocationContext) : VeevaVau
         if (documentIds is { Count: 0 })
             return PollingResponses.DoNotFly<List<DocumentResponse>>(pollingStartTime);
         
-        var unquotedFields = await DocumentFilterHelper.GetUnquotedFieldNames(Client, fields);
+        var fieldTypes = await DocumentFilterHelper.GetFieldTypes(Client, fields);
         
         string vql = new VqlBuilder("documents", VqlFields.Document)
             .Find(input.NameContains, "name__v")
             .Where("binder__v = false")
             .WhereContains("TONAME(type__v)", input.DocumentTypes)
             .WhereContains("id", documentIds)
-            .WhereFieldsEqual(fields, unquotedFields)
+            .WhereFieldsEqual(fields, fieldTypes)
             .WhereAfterOrEqual("version_modified_date__v", pollingRequest.Memory?.LastPollingTime)
             .Build();
         
