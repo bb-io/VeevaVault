@@ -134,6 +134,14 @@ public static class VeevaClientExtensions
         return result.FirstOrDefault()?.Type ?? throw new PluginApplicationException($"Document '{documentId}' was not found");
     }
     
+    // https://general.veevavault.dev/vault-api/api-reference/26.2/documents/retrieve-document-fields/retrieve-all-document-fields/
+    public static async Task<List<DocumentFieldEntity>> GetAllDocumentFields(this VeevaClient client)
+    {
+        var request = new VeevaRequest("metadata/objects/documents/properties");
+        var response = await client.ExecuteWithErrorHandling<RetrieveAllDocumentFieldsResponse>(request);
+        return response.Properties;
+    }
+    
     public static async Task<DocumentEntity> GetDocument(this VeevaClient client, string documentId)
     {
         var request = new VeevaRequest($"objects/documents/{documentId}");

@@ -1,5 +1,6 @@
 using Apps.VeevaVault.Events.Polling;
 using Apps.VeevaVault.Events.Polling.Models.Requests.Document;
+using Apps.VeevaVault.Models.Identifiers.Optional;
 using Apps.VeevaVault.Models.Polling;
 using Blackbird.Applications.Sdk.Common.Polling;
 using Tests.VeevaVault.Base;
@@ -21,9 +22,10 @@ public class DocumentPollingTests : TestBase
         {
             
         };
+        var fieldsIdentifier = new DocumentFieldsOptionalIdentifier { };
 
         // Act
-        var result = await Polling.OnDocumentCreatedOrUpdated(pollingRequest, input);
+        var result = await Polling.OnDocumentCreatedOrUpdated(pollingRequest, input, fieldsIdentifier);
 
         // Assert
         PrintJsonResult(result);

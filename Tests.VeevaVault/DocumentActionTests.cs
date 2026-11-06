@@ -20,9 +20,14 @@ public class DocumentActionTests : TestBase
         {
             NameContains = "",
         };
+        var fieldsIdentifier = new DocumentFieldsOptionalIdentifier
+        {
+            DocumentFieldNames = ["lifecycle__v", "pages__v"],
+            DocumentFieldValues = ["General", "1"]
+        };
 
         // Act
-        var result = await Actions.SearchDocuments(input);
+        var result = await Actions.SearchDocuments(input, fieldsIdentifier);
 
         // Assert
         PrintJsonResult(result);
@@ -50,7 +55,7 @@ public class DocumentActionTests : TestBase
         var identifier = new DocumentIdentifier { DocumentId = "2504" };
 
         string updatedFieldValue = "test2";
-        var input = new UpdateDocumentRequest
+        var input = new DocumentFieldsIdentifier
         {
             DocumentFieldNames =  ["name__v"],
             DocumentFieldValues = [updatedFieldValue]

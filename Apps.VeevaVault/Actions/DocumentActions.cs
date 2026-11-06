@@ -25,17 +25,23 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
 {
     [Action("Search documents", Description = "Search documents with a specific criteria")]
     public async Task<SearchDocumentsResponse> SearchDocuments(
-        [ActionParameter] SearchDocumentsRequest input)
+        [ActionParameter] SearchDocumentsRequest input,
+        [ActionParameter] DocumentFieldsOptionalIdentifier fieldIdentifier)
     {
+        var fields = fieldIdentifier.GetFields();
+        
         var documentIds = await DocumentFilterHelper.GetDocumentIds(Client, input.BinderId, input.WorkflowStep);
         if (documentIds is { Count: 0 })
             return new([]);
+        
+        var unquotedFields = await DocumentFilterHelper.GetUnquotedFieldNames(Client, fields);
         
         string vql = new VqlBuilder("documents", VqlFields.Document)
             .Find(input.NameContains, "name__v")
             .Where("binder__v = false")
             .WhereContains("TONAME(type__v)", input.DocumentTypes)
             .WhereContains("id", documentIds)
+            .WhereFieldsEqual(fields, unquotedFields)
             .Build();
         
         var response = await Client.Query<DocumentEntity>(vql);
@@ -54,7 +60,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
     [Action("Update document", Description = "Update fields of a specific document")]
     public Task UpdateDocument(
         [ActionParameter] DocumentIdentifier documentIdentifier,
-        [ActionParameter] UpdateDocumentRequest input)
+        [ActionParameter] DocumentFieldsIdentifier input)
     {
         input.Validate();
 

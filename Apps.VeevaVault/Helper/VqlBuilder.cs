@@ -1,3 +1,5 @@
+using Apps.VeevaVault.Extensions;
+
 namespace Apps.VeevaVault.Helper;
 
 public class VqlBuilder(string from, IEnumerable<string> fields)
@@ -49,6 +51,14 @@ public class VqlBuilder(string from, IEnumerable<string> fields)
     {
         if (!string.IsNullOrWhiteSpace(phrase))
             _find = $"FIND ('{phrase}' SCOPE {scope})";
+
+        return this;
+    }
+    
+    public VqlBuilder WhereFieldsEqual(IEnumerable<(string Name, string Value)> fields, IReadOnlySet<string> unquotedFields)
+    {
+        foreach (var (name, value) in fields)
+            Where($"{name} = {(unquotedFields.Contains(name) ? value : value.Quote())}");
 
         return this;
     }

@@ -198,6 +198,20 @@ public class HandlerTests : TestBase
         PrintDataHandlerResult(result);
         Assert.IsNotNull(result);
     }
+
+    [TestMethod]
+    public async Task DocumentFieldDataHandler_ReturnsDocumentFields()
+    {
+        // Arrange
+        var handler = new DocumentFieldDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
     
     [TestMethod]
     public async Task DocumentAttachmentDataHandler_ReturnsAttachments()

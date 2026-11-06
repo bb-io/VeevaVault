@@ -5,6 +5,20 @@ namespace Apps.VeevaVault.Helper;
 
 public static class DocumentFilterHelper
 {
+    public static async Task<IReadOnlySet<string>> GetUnquotedFieldNames(VeevaClient client, List<(string Name, string Value)> fields)
+    {
+        if (fields.Count == 0)
+            return new HashSet<string>();
+
+        var allFields = await client.GetAllDocumentFields();
+        string[] unquotedFieldTypes = ["Number", "Boolean"];
+        
+        return allFields
+            .Where(x => unquotedFieldTypes.Contains(x.Type, StringComparer.OrdinalIgnoreCase))
+            .Select(x => x.Name)
+            .ToHashSet();
+    }
+    
     public static async Task<List<long>?> GetDocumentIds(VeevaClient client, string? binderId, string? workflowStep)
     {
         List<long>? documentIds = null;
