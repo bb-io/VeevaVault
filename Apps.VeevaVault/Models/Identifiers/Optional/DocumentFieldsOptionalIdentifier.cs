@@ -7,7 +7,7 @@ namespace Apps.VeevaVault.Models.Identifiers.Optional;
 
 public class DocumentFieldsOptionalIdentifier
 {
-    [Display("Document field names"), DataSource(typeof(UpdateDocumentFieldDataHandler))]
+    [Display("Document field names"), DataSource(typeof(DocumentFieldDataHandler))]
     public List<string>? DocumentFieldNames { get; set; }
 
     [Display("Document field values", Description = "Corresponds to the 'Document field names' input")]

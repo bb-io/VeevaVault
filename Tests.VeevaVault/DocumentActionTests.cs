@@ -55,7 +55,7 @@ public class DocumentActionTests : TestBase
         var identifier = new DocumentIdentifier { DocumentId = "2504" };
 
         string updatedFieldValue = "test2";
-        var input = new DocumentFieldsIdentifier
+        var input = new UpdateDocumentRequest
         {
             DocumentFieldNames =  ["name__v"],
             DocumentFieldValues = [updatedFieldValue]

@@ -3,9 +3,9 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 
-namespace Apps.VeevaVault.Models.Identifiers;
+namespace Apps.VeevaVault.Models.Requests.Document;
 
-public class DocumentFieldsIdentifier
+public class UpdateDocumentRequest
 {
     [Display("Document field names"), DataSource(typeof(UpdateDocumentFieldDataHandler))]
     public List<string> DocumentFieldNames { get; set; } = [];

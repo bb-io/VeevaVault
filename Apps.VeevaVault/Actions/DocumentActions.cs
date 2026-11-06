@@ -60,7 +60,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
     [Action("Update document", Description = "Update fields of a specific document")]
     public Task UpdateDocument(
         [ActionParameter] DocumentIdentifier documentIdentifier,
-        [ActionParameter] DocumentFieldsIdentifier input)
+        [ActionParameter] UpdateDocumentRequest input)
     {
         input.Validate();
 
