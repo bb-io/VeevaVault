@@ -16,12 +16,14 @@ public class DocumentFieldsOptionalIdentifier
     public List<(string Name, string Value)> GetFields()
     {
         Validate();
-        return DocumentFieldNames is null ? [] : DocumentFieldNames.Zip(DocumentFieldValues!, (name, value) => (name, value)).ToList();
+        return DocumentFieldNames is null || DocumentFieldNames.Count == 0 
+            ? [] 
+            : DocumentFieldNames.Zip(DocumentFieldValues!, (name, value) => (name, value)).ToList();
     }
     
     private void Validate()
     {
-        if (DocumentFieldNames?.Count != DocumentFieldValues?.Count)
+        if ((DocumentFieldNames?.Count ?? 0) != (DocumentFieldValues?.Count ?? 0))
         {
             throw new PluginMisconfigurationException(
                 "The 'Document field names' must correspond to the 'Document field values' input. " +
