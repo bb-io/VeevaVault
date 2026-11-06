@@ -24,8 +24,8 @@ public class DocumentFieldActions(InvocationContext invocationContext) : VeevaVa
         [ActionParameter] DocumentIdentifier documentIdentifier, 
         [ActionParameter] NumberDocumentFieldIdentifier fieldIdentifier)
     {
-        var value = await Client.GetDocumentFieldValue(documentIdentifier.DocumentId, fieldIdentifier.FieldName);
-        return new(value?.ToObject<decimal?>());
+        var value = await Client.GetDocumentFieldValue<decimal?>(documentIdentifier.DocumentId, fieldIdentifier.FieldName);
+        return new(value);
     }
     
     [Action("Get document boolean field value", Description = "Get a value of a boolean field for a specific document")]
@@ -33,8 +33,8 @@ public class DocumentFieldActions(InvocationContext invocationContext) : VeevaVa
         [ActionParameter] DocumentIdentifier documentIdentifier, 
         [ActionParameter] BooleanDocumentFieldIdentifier fieldIdentifier)
     {
-        var value = await Client.GetDocumentFieldValue(documentIdentifier.DocumentId, fieldIdentifier.FieldName);
-        return new(value?.ToObject<bool?>());
+        var value = await Client.GetDocumentFieldValue<bool?>(documentIdentifier.DocumentId, fieldIdentifier.FieldName);
+        return new(value);
     }
 
     [Action("Get document date field value", Description = "Get a value of a date field for a specific document")]
@@ -42,8 +42,8 @@ public class DocumentFieldActions(InvocationContext invocationContext) : VeevaVa
         [ActionParameter] DocumentIdentifier documentIdentifier, 
         [ActionParameter] DateDocumentFieldIdentifier fieldIdentifier)
     {
-        var value = await Client.GetDocumentFieldValue(documentIdentifier.DocumentId, fieldIdentifier.FieldName);
-        return new(value?.ToObject<DateTime?>());
+        var value = await Client.GetDocumentFieldValue<DateTime?>(documentIdentifier.DocumentId, fieldIdentifier.FieldName);
+        return new(value);
     }
 
     [Action("Get document picklist field values", Description = "Get selected values of a picklist field for a specific document")]
@@ -51,7 +51,7 @@ public class DocumentFieldActions(InvocationContext invocationContext) : VeevaVa
         [ActionParameter] DocumentIdentifier documentIdentifier, 
         [ActionParameter] PicklistDocumentFieldIdentifier fieldIdentifier)
     {
-        var value = await Client.GetDocumentFieldValue(documentIdentifier.DocumentId, fieldIdentifier.FieldName);
-        return new(value?.ToObject<List<string>>() ?? []);
+        var value = await Client.GetDocumentFieldValue<List<string>>(documentIdentifier.DocumentId, fieldIdentifier.FieldName);
+        return new(value ?? []);
     }
 }
