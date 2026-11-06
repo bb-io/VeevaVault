@@ -1,0 +1,9 @@
+using Apps.VeevaVault.Handlers.DocumentField.Base;
+using Apps.VeevaVault.Models.Identifiers;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Invocation;
+
+namespace Apps.VeevaVault.Handlers.DocumentField;
+
+public class NumberDocumentFieldDataHandler(InvocationContext invocationContext, [ActionParameter] DocumentIdentifier documentIdentifier)
+    : TypedDocumentFieldDataHandler(invocationContext, documentIdentifier, "Number");

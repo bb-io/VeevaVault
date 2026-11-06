@@ -140,6 +140,66 @@ public class HandlerTests : TestBase
     }
     
     [TestMethod]
+    public async Task NumberDocumentFieldDataHandler_ReturnsAllNumberFields()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
+        var handler = new NumberDocumentFieldDataHandler(InvocationContext, documentIdentifier);
+    
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+    
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task BooleanDocumentFieldDataHandler_ReturnsAllBooleanFields()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
+        var handler = new BooleanDocumentFieldDataHandler(InvocationContext, documentIdentifier);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task DateDocumentFieldDataHandler_ReturnsAllDateFields()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
+        var handler = new DateDocumentFieldDataHandler(InvocationContext, documentIdentifier);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task PicklistDocumentFieldDataHandler_ReturnsAllPicklistFields()
+    {
+        // Arrange
+        var documentIdentifier = new DocumentIdentifier { DocumentId = "2504" };
+        var handler = new PicklistDocumentFieldDataHandler(InvocationContext, documentIdentifier);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
     public async Task DocumentAttachmentDataHandler_ReturnsAttachments()
     {
         // Arrange
