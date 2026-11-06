@@ -57,6 +57,15 @@ as you will need it to create a new connection.
 - **Accept workflow task** Accept an available workflow task
 - **Complete workflow task** Complete an available workflow task
 
+### Document fields
+
+- **Get document text field value** Get a value of a text field for a specific document
+- **Get document number field value** Get a value of a number field for a specific document
+- **Get document boolean field value** Get a value of a boolean field for a specific document
+- **Get document date field value** Get a value of a date field for a specific document
+- **Get document picklist field values** Get selected values of a picklist field for a specific document
+
+
 ## Events
 
 ### Documents
