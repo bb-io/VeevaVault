@@ -1,4 +1,4 @@
-using Apps.VeevaVault.Handlers;
+using Apps.VeevaVault.Handlers.DocumentField;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
@@ -7,7 +7,7 @@ namespace Apps.VeevaVault.Models.Requests.Document;
 
 public class UpdateDocumentRequest
 {
-    [Display("Document field names"), DataSource(typeof(DocumentFieldDataHandler))]
+    [Display("Document field names"), DataSource(typeof(UpdateDocumentFieldDataHandler))]
     public List<string> DocumentFieldNames { get; set; } = [];
 
     [Display("Document field values", Description = "Corresponds to the 'Document field names' input")]

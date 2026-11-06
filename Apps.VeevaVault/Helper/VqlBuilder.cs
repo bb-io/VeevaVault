@@ -1,3 +1,7 @@
+using System.Globalization;
+using Apps.VeevaVault.Extensions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
+
 namespace Apps.VeevaVault.Helper;
 
 public class VqlBuilder(string from, IEnumerable<string> fields)
@@ -52,6 +56,19 @@ public class VqlBuilder(string from, IEnumerable<string> fields)
 
         return this;
     }
+    
+    public VqlBuilder WhereFieldsEqual(IEnumerable<(string Name, string Value)> fields, IReadOnlyDictionary<string, string> fieldTypes)
+    {
+        foreach (var (name, value) in fields)
+        {
+            if (!fieldTypes.TryGetValue(name, out var type))
+                throw new PluginMisconfigurationException($"Document field '{name}' does not exist");
+
+            Where($"{name} = {FormatValue(name, type, value)}");
+        }
+
+        return this;
+    }
 
     public string Build()
     {
@@ -64,5 +81,19 @@ public class VqlBuilder(string from, IEnumerable<string> fields)
             vql += $" WHERE {string.Join(" AND ", _conditions)}";
 
         return vql;
+    }
+
+    private static string FormatValue(string name, string type, string value)
+    {
+        return type.ToLowerInvariant() switch
+        {
+            "number" => decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var number)
+                ? number.ToString(CultureInfo.InvariantCulture)
+                : throw new PluginMisconfigurationException($"Value '{value}' of field '{name}' is not a valid number"),
+            "boolean" => bool.TryParse(value, out var flag)
+                ? flag.ToString().ToLowerInvariant()
+                : throw new PluginMisconfigurationException($"Value '{value}' of field '{name}' is not a valid boolean"),
+            _ => value.Quote()
+        };
     }
 }

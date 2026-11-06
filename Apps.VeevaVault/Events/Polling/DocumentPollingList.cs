@@ -3,6 +3,7 @@ using Apps.VeevaVault.Events.Polling.Models.Requests.Document;
 using Apps.VeevaVault.Extensions;
 using Apps.VeevaVault.Helper;
 using Apps.VeevaVault.Models.Entities.Document;
+using Apps.VeevaVault.Models.Identifiers.Optional;
 using Apps.VeevaVault.Models.Polling;
 using Apps.VeevaVault.Models.Responses.Document;
 using Blackbird.Applications.Sdk.Common;
@@ -18,22 +19,28 @@ public class DocumentPollingList(InvocationContext invocationContext) : VeevaVau
     [PollingEvent("On document created or updated", Description = "Triggered when a document is created or updated.")]
     public async Task<PollingEventResponse<DateMemory, List<DocumentResponse>>> OnDocumentCreatedOrUpdated(
         PollingEventRequest<DateMemory> pollingRequest,
-        [PollingEventParameter] OnDocumentCreatedOrUpdatedRequest input)
+        [PollingEventParameter] OnDocumentCreatedOrUpdatedRequest input,
+        [PollingEventParameter] DocumentFieldsOptionalIdentifier fieldIdentifier)
     {
         var pollingStartTime = DateTime.UtcNow;
 
         if (pollingRequest.Memory?.LastPollingTime is null)
             return PollingResponses.DoNotFly<List<DocumentResponse>>(pollingStartTime);
         
+        var fields = fieldIdentifier.GetFields();
+        
         var documentIds = await DocumentFilterHelper.GetDocumentIds(Client, input.BinderId, input.WorkflowStep);
         if (documentIds is { Count: 0 })
             return PollingResponses.DoNotFly<List<DocumentResponse>>(pollingStartTime);
+        
+        var fieldTypes = await DocumentFilterHelper.GetFieldTypes(Client, fields);
         
         string vql = new VqlBuilder("documents", VqlFields.Document)
             .Find(input.NameContains, "name__v")
             .Where("binder__v = false")
             .WhereContains("TONAME(type__v)", input.DocumentTypes)
             .WhereContains("id", documentIds)
+            .WhereFieldsEqual(fields, fieldTypes)
             .WhereAfterOrEqual("version_modified_date__v", pollingRequest.Memory?.LastPollingTime)
             .Build();
         

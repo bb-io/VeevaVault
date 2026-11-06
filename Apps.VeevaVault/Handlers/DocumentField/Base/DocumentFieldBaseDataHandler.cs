@@ -1,21 +1,20 @@
 using Apps.VeevaVault.Api;
 using Apps.VeevaVault.Extensions;
+using Apps.VeevaVault.Models.Entities.Document;
 using Apps.VeevaVault.Models.Identifiers;
 using Apps.VeevaVault.Models.Responses.Document.Api;
-using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
-namespace Apps.VeevaVault.Handlers;
+namespace Apps.VeevaVault.Handlers.DocumentField.Base;
 
-public class DocumentFieldDataHandler : VeevaVaultInvocable, IAsyncDataSourceItemHandler
+public abstract class DocumentFieldBaseDataHandler : VeevaVaultInvocable, IAsyncDataSourceItemHandler
 {
     private readonly string _documentId;
-    
-    public DocumentFieldDataHandler(
-        InvocationContext invocationContext, 
-        [ActionParameter] DocumentIdentifier documentIdentifier) : base(invocationContext)
+
+    protected DocumentFieldBaseDataHandler(InvocationContext invocationContext, DocumentIdentifier documentIdentifier) 
+        : base(invocationContext)
     {
         if (string.IsNullOrEmpty(documentIdentifier.DocumentId))
             throw new PluginMisconfigurationException("Please specify a document ID first");
@@ -31,9 +30,11 @@ public class DocumentFieldDataHandler : VeevaVaultInvocable, IAsyncDataSourceIte
         var typeResponse = await Client.ExecuteWithErrorHandling<RetrieveAllDocumentFieldsResponse>(typeRequest);
 
         return typeResponse.Properties
-            .Where(x => x.Editable && !x.Disabled && !x.Hidden)
+            .Where(x => !x.Disabled && !x.Hidden && IsMatch(x))
             .Where(x => x.Label.MatchesSearch(context.SearchString) || x.Name.MatchesSearch(context.SearchString))
             .Select(x => new DataSourceItem(x.Name, x.Label ?? x.Name))
             .ToList();
     }
+    
+    protected abstract bool IsMatch(DocumentFieldEntity field);
 }

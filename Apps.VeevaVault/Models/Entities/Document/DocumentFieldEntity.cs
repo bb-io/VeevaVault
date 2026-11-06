@@ -7,6 +7,9 @@ public class DocumentFieldEntity
     [JsonProperty("name")]
     public string Name { get; set; } = string.Empty;
 
+    [JsonProperty("type")]
+    public string Type { get; set; } = string.Empty;
+
     [JsonProperty("label")]
     public string? Label { get; set; }
 

@@ -5,6 +5,17 @@ namespace Apps.VeevaVault.Helper;
 
 public static class DocumentFilterHelper
 {
+    public static async Task<IReadOnlyDictionary<string, string>> GetFieldTypes(
+        VeevaClient client, 
+        List<(string Name, string Value)> fields)
+    {
+        if (fields.Count == 0)
+            return new Dictionary<string, string>();
+
+        var allFields = await client.GetAllDocumentFields();
+        return allFields.ToDictionary(x => x.Name, x => x.Type);
+    }
+    
     public static async Task<List<long>?> GetDocumentIds(VeevaClient client, string? binderId, string? workflowStep)
     {
         List<long>? documentIds = null;

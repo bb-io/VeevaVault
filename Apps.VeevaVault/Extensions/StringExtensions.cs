@@ -39,4 +39,6 @@ public static class StringExtensions
 
         return errors;
     }
+    
+    public static string Quote(this string value) => $"'{value.Replace("\\", "\\\\").Replace("'", "\\'")}'";
 }
