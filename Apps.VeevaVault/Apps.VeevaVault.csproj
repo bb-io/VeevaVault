@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <Product>Veeva Vault [Beta]</Product>
         <Description>Veeva Vault is the proven cloud-based platform for the life sciences industry</Description>
-        <Version>1.0.1</Version>
+        <Version>1.0.2</Version>
         <PackageId>Apps.VeevaVault</PackageId>
         <AssemblyName>Apps.VeevaVault</AssemblyName>
     </PropertyGroup>
@@ -20,7 +20,7 @@
 
     <ItemGroup>
         <EmbeddedResource CopyToOutputDirectory="Always" Include="image\icon.png" />
-        <EmbeddedResource CopyToOutputDirectory="Always" Include="..\README.md"/>
+        <EmbeddedResource Include="..\README.md" Link="README.md" CopyToOutputDirectory="Always" />
     </ItemGroup>
 
 </Project>
